@@ -1,2 +1,0 @@
-# navono.github.io
-blog
