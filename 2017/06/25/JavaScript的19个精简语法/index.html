@@ -1,0 +1,968 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="JavaScript,翻译," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="三元操作符简短写法
+短路计算简短写法
+变量声明简短写法
+If控制语句简短写法
+for控制语句简短写法
+短路计算
+基于十进制的指数
+对象属性
+箭头函数
+隐示返回值
+默认参数
+模板字面量
+解构赋值
+字符串换行
+…操作符
+强制参数
+Array.find
+Obejct[key]
+Double Bitwise NOT
+
+
+三元操作符简短写法Longhand:12345678const x = 20;le">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScript的19个精简语法">
+<meta property="og:url" content="http://codingeek.me/2017/06/25/JavaScript的19个精简语法/index.html">
+<meta property="og:site_name" content="Pingeek">
+<meta property="og:description" content="三元操作符简短写法
+短路计算简短写法
+变量声明简短写法
+If控制语句简短写法
+for控制语句简短写法
+短路计算
+基于十进制的指数
+对象属性
+箭头函数
+隐示返回值
+默认参数
+模板字面量
+解构赋值
+字符串换行
+…操作符
+强制参数
+Array.find
+Obejct[key]
+Double Bitwise NOT
+
+
+三元操作符简短写法Longhand:12345678const x = 20;le">
+<meta property="og:updated_time" content="2017-06-25T07:37:56.409Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JavaScript的19个精简语法">
+<meta name="twitter:description" content="三元操作符简短写法
+短路计算简短写法
+变量声明简短写法
+If控制语句简短写法
+for控制语句简短写法
+短路计算
+基于十进制的指数
+对象属性
+箭头函数
+隐示返回值
+默认参数
+模板字面量
+解构赋值
+字符串换行
+…操作符
+强制参数
+Array.find
+Obejct[key]
+Double Bitwise NOT
+
+
+三元操作符简短写法Longhand:12345678const x = 20;le">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://codingeek.me/2017/06/25/JavaScript的19个精简语法/"/>
+
+
+
+
+
+  <title> JavaScript的19个精简语法 | Pingeek </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Pingeek</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">Living,then coding.</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://codingeek.me/2017/06/25/JavaScript的19个精简语法/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Pingeek">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/uploads/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Pingeek">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Pingeek" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                JavaScript的19个精简语法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-06-25T15:31:12+08:00">
+                2017-06-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/前端/" itemprop="url" rel="index">
+                    <span itemprop="name">前端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/06/25/JavaScript的19个精简语法/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/25/JavaScript的19个精简语法/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <!-- TOC -->
+<ul>
+<li><a href="#三元操作符简短写法">三元操作符简短写法</a></li>
+<li><a href="#短路计算简短写法">短路计算简短写法</a></li>
+<li><a href="#变量声明简短写法">变量声明简短写法</a></li>
+<li><a href="#if控制语句简短写法">If控制语句简短写法</a></li>
+<li><a href="#for控制语句简短写法">for控制语句简短写法</a></li>
+<li><a href="#短路计算">短路计算</a></li>
+<li><a href="#基于十进制的指数">基于十进制的指数</a></li>
+<li><a href="#对象属性">对象属性</a></li>
+<li><a href="#箭头函数">箭头函数</a></li>
+<li><a href="#隐示返回值">隐示返回值</a></li>
+<li><a href="#默认参数">默认参数</a></li>
+<li><a href="#模板字面量">模板字面量</a></li>
+<li><a href="#解构赋值">解构赋值</a></li>
+<li><a href="#字符串换行">字符串换行</a></li>
+<li><a href="#操作符">…操作符</a></li>
+<li><a href="#强制参数">强制参数</a></li>
+<li><a href="#arrayfind">Array.find</a></li>
+<li><a href="#obejctkey">Obejct[key]</a></li>
+<li><a href="#double-bitwise-not">Double Bitwise NOT</a></li>
+</ul>
+<!-- /TOC -->
+<h2 id="三元操作符简短写法"><a href="#三元操作符简短写法" class="headerlink" title="三元操作符简短写法"></a>三元操作符简短写法</h2><p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> x = <span class="number">20</span>;</div><div class="line"><span class="keyword">let</span> big;</div><div class="line"></div><div class="line"><span class="keyword">if</span> (x &gt; <span class="number">10</span>) &#123;</div><div class="line">    big = <span class="literal">true</span>;</div><div class="line">&#125; <span class="keyword">else</span> &#123;</div><div class="line">    big = <span class="literal">false</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> big = x &gt; <span class="number">10</span> ? <span class="literal">true</span> : <span class="literal">false</span>;</div></pre></td></tr></table></figure></p>
+<p>或者嵌套：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> big = x &gt; <span class="number">10</span> ? <span class="string">" greater 10"</span> : x &lt; <span class="number">5</span> ? <span class="string">"less 5"</span> : <span class="string">"between 5 and 10"</span>;</div></pre></td></tr></table></figure></p>
+<p>个人认为最后一个可读性较差，不建议使用。</p>
+<h2 id="短路计算简短写法"><a href="#短路计算简短写法" class="headerlink" title="短路计算简短写法"></a>短路计算简短写法</h2><p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (variable1 !== <span class="literal">null</span> || variable1 !== <span class="literal">undefined</span> || variable1 !== <span class="string">''</span>) &#123;</div><div class="line">     <span class="keyword">let</span> variable2 = variable1;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> variable2 = variable1  || <span class="string">'new'</span>;</div></pre></td></tr></table></figure></p>
+<p>这个很厉害了，大部分人都不太清楚，至少我自己也是。但是它确实可以写成这样。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> variable1;</div><div class="line"><span class="keyword">let</span> variable2 = variable1  || <span class="string">''</span>;</div><div class="line"><span class="built_in">console</span>.log(variable2 === <span class="string">''</span>); <span class="comment">// prints true</span></div><div class="line"></div><div class="line">variable1 = <span class="string">'foo'</span>;</div><div class="line">variable2 = variable1  || <span class="string">''</span>;</div><div class="line"><span class="built_in">console</span>.log(variable2); <span class="comment">// prints foo</span></div></pre></td></tr></table></figure>
+<h2 id="变量声明简短写法"><a href="#变量声明简短写法" class="headerlink" title="变量声明简短写法"></a>变量声明简短写法</h2><p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> x;</div><div class="line"><span class="keyword">let</span> y;</div><div class="line"><span class="keyword">let</span> z = <span class="number">3</span>;</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> x, y, z=<span class="number">3</span>;</div></pre></td></tr></table></figure></p>
+<h2 id="If控制语句简短写法"><a href="#If控制语句简短写法" class="headerlink" title="If控制语句简短写法"></a>If控制语句简短写法</h2><p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (likeJavaScript === <span class="literal">true</span>)</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (likeJavaScript)</div></pre></td></tr></table></figure></p>
+<p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> a;</div><div class="line"><span class="keyword">if</span> ( a !== <span class="literal">true</span> ) &#123;</div><div class="line"><span class="comment">// do something...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> a;</div><div class="line"><span class="keyword">if</span> ( !a ) &#123;</div><div class="line"><span class="comment">// do something...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="for控制语句简短写法"><a href="#for控制语句简短写法" class="headerlink" title="for控制语句简短写法"></a>for控制语句简短写法</h2><p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; allImgs.length; i++)</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">let</span> index <span class="keyword">in</span> allImgs)</div></pre></td></tr></table></figure></p>
+<p>对于Array：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">logArrayElements</span>(<span class="params">element, index, array</span>) </span>&#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">"a["</span> + index + <span class="string">"] = "</span> + element);</div><div class="line">&#125;</div><div class="line">[<span class="number">2</span>, <span class="number">5</span>, <span class="number">9</span>].forEach(logArrayElements);</div><div class="line"><span class="comment">// logs:</span></div><div class="line"><span class="comment">// a[0] = 2</span></div><div class="line"><span class="comment">// a[1] = 5</span></div><div class="line"><span class="comment">// a[2] = 9</span></div></pre></td></tr></table></figure></p>
+<h2 id="短路计算"><a href="#短路计算" class="headerlink" title="短路计算"></a>短路计算</h2><p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> dbHost;</div><div class="line"><span class="keyword">if</span> (process.env.DB_HOST) &#123;</div><div class="line">  dbHost = process.env.DB_HOST;</div><div class="line">&#125; <span class="keyword">else</span> &#123;</div><div class="line">  dbHost = <span class="string">'localhost'</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> dbHost = process.env.DB_HOST || <span class="string">'localhost'</span>;</div></pre></td></tr></table></figure></p>
+<h2 id="基于十进制的指数"><a href="#基于十进制的指数" class="headerlink" title="基于十进制的指数"></a>基于十进制的指数</h2><p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++) &#123;&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">1e7</span>; i++) &#123;&#125;</div><div class="line"></div><div class="line"><span class="comment">// All the below will evaluate to true</span></div><div class="line"><span class="number">1e0</span> === <span class="number">1</span>;</div><div class="line"><span class="number">1e1</span> === <span class="number">10</span>;</div><div class="line"><span class="number">1e2</span> === <span class="number">100</span>;</div><div class="line"><span class="number">1e3</span> === <span class="number">1000</span>;</div><div class="line"><span class="number">1e4</span> === <span class="number">10000</span>;</div><div class="line"><span class="number">1e5</span> === <span class="number">100000</span>;</div></pre></td></tr></table></figure></p>
+<h2 id="对象属性"><a href="#对象属性" class="headerlink" title="对象属性"></a>对象属性</h2><p>以下是对于ES6之后的。</p>
+<p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">x</span>:x, <span class="attr">y</span>:y &#125;;</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> obj = &#123; x, y &#125;;</div></pre></td></tr></table></figure></p>
+<h2 id="箭头函数"><a href="#箭头函数" class="headerlink" title="箭头函数"></a>箭头函数</h2><p>这应该属于ES6的语法上的使用</p>
+<p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">sayHello</span>(<span class="params">name</span>) </span>&#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'Hello'</span>, name);</div><div class="line">&#125;</div><div class="line"></div><div class="line">setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'Loaded'</span>)</div><div class="line">&#125;, <span class="number">2000</span>);</div><div class="line"></div><div class="line">list.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">item</span>) </span>&#123;</div><div class="line">  <span class="built_in">console</span>.log(item);</div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">sayHello = <span class="function"><span class="params">name</span> =&gt;</span> <span class="built_in">console</span>.log(<span class="string">'Hello'</span>, name);</div><div class="line"></div><div class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> <span class="built_in">console</span>.log(<span class="string">'Loaded'</span>), <span class="number">2000</span>);</div><div class="line"></div><div class="line">list.forEach(<span class="function"><span class="params">item</span> =&gt;</span> <span class="built_in">console</span>.log(item));</div></pre></td></tr></table></figure></p>
+<h2 id="隐示返回值"><a href="#隐示返回值" class="headerlink" title="隐示返回值"></a>隐示返回值</h2><p>这也是ES6的箭头函数的语法。</p>
+<p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">calcCircumference</span>(<span class="params">diameter</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="built_in">Math</span>.PI * diameter</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">calcCircumference = <span class="function"><span class="params">diameter</span> =&gt;</span> (</div><div class="line">  <span class="built_in">Math</span>.PI * diameter;</div><div class="line">)</div></pre></td></tr></table></figure></p>
+<h2 id="默认参数"><a href="#默认参数" class="headerlink" title="默认参数"></a>默认参数</h2><p>ES6的支持。</p>
+<p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">volume</span>(<span class="params">l, w, h</span>) </span>&#123;</div><div class="line">  <span class="keyword">if</span> (w === <span class="literal">undefined</span>)</div><div class="line">    w = <span class="number">3</span>;</div><div class="line">  <span class="keyword">if</span> (h === <span class="literal">undefined</span>)</div><div class="line">    h = <span class="number">4</span>;</div><div class="line">  <span class="keyword">return</span> l * w * h;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">volume = <span class="function">(<span class="params">l, w = <span class="number">3</span>, h = <span class="number">4</span> </span>) =&gt;</span> (l * w * h);</div><div class="line">volume(<span class="number">2</span>) <span class="comment">//output: 24</span></div></pre></td></tr></table></figure></p>
+<h2 id="模板字面量"><a href="#模板字面量" class="headerlink" title="模板字面量"></a>模板字面量</h2><p>ES6的支持。</p>
+<p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> welcome = <span class="string">'You have logged in as '</span> + first + <span class="string">' '</span> + last + <span class="string">'.'</span></div><div class="line"><span class="keyword">const</span> db = <span class="string">'http://'</span> + host + <span class="string">':'</span> + port + <span class="string">'/'</span> + database;</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> welcome = <span class="string">`You have logged in as <span class="subst">$&#123;first&#125;</span> <span class="subst">$&#123;last&#125;</span>`</span>;</div><div class="line"><span class="keyword">const</span> db = <span class="string">`http://<span class="subst">$&#123;host&#125;</span>:<span class="subst">$&#123;port&#125;</span>/<span class="subst">$&#123;database&#125;</span>`</span>;</div></pre></td></tr></table></figure></p>
+<h2 id="解构赋值"><a href="#解构赋值" class="headerlink" title="解构赋值"></a>解构赋值</h2><p>ES6的支持。</p>
+<p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> observable = <span class="built_in">require</span>(<span class="string">'mobx/observable'</span>);</div><div class="line"><span class="keyword">const</span> action = <span class="built_in">require</span>(<span class="string">'mobx/action'</span>);</div><div class="line"><span class="keyword">const</span> runInAction = <span class="built_in">require</span>(<span class="string">'mobx/runInAction'</span>);</div><div class="line"></div><div class="line"><span class="keyword">const</span> store = <span class="keyword">this</span>.props.store;</div><div class="line"><span class="keyword">const</span> form = <span class="keyword">this</span>.props.form;</div><div class="line"><span class="keyword">const</span> loading = <span class="keyword">this</span>.props.loading;</div><div class="line"><span class="keyword">const</span> errors = <span class="keyword">this</span>.props.errors;</div><div class="line"><span class="keyword">const</span> entity = <span class="keyword">this</span>.props.entity;</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123; observable, action, runInAction &#125; <span class="keyword">from</span> <span class="string">'mobx'</span>;</div><div class="line"><span class="keyword">const</span> &#123; store, form, loading, errors, entity &#125; = <span class="keyword">this</span>.props;</div></pre></td></tr></table></figure></p>
+<h2 id="字符串换行"><a href="#字符串换行" class="headerlink" title="字符串换行"></a>字符串换行</h2><p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> lorem = <span class="string">'Lorem ipsum dolor sit amet, consectetur\n\t'</span></div><div class="line">    + <span class="string">'adipisicing elit, sed do eiusmod tempor incididunt\n\t'</span></div><div class="line">    + <span class="string">'ut labore et dolore magna aliqua. Ut enim ad minim\n\t'</span></div><div class="line">    + <span class="string">'veniam, quis nostrud exercitation ullamco laboris\n\t'</span></div><div class="line">    + <span class="string">'nisi ut aliquip ex ea commodo consequat. Duis aute\n\t'</span></div><div class="line">    + <span class="string">'irure dolor in reprehenderit in voluptate velit esse.\n\t'</span></div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> lorem = <span class="string">`Lorem ipsum dolor sit amet, consectetur</span></div><div class="line">    adipisicing elit, sed do eiusmod tempor incididunt</div><div class="line">    ut labore et dolore magna aliqua. Ut enim ad minim</div><div class="line">    veniam, quis nostrud exercitation ullamco laboris</div><div class="line">    nisi ut aliquip ex ea commodo consequat. Duis aute</div><div class="line">    irure dolor in reprehenderit in voluptate velit esse.`</div></pre></td></tr></table></figure></p>
+<h2 id="…操作符"><a href="#…操作符" class="headerlink" title="…操作符"></a>…操作符</h2><p>ES6的支持。</p>
+<p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// joining arrays</span></div><div class="line"><span class="keyword">const</span> odd = [<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>];</div><div class="line"><span class="keyword">const</span> nums = [<span class="number">2</span> ,<span class="number">4</span> , <span class="number">6</span>].concat(odd);</div><div class="line"></div><div class="line"><span class="comment">// cloning arrays</span></div><div class="line"><span class="keyword">const</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];</div><div class="line"><span class="keyword">const</span> arr2 = arr.slice()</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// joining arrays</span></div><div class="line"><span class="keyword">const</span> odd = [<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span> ];</div><div class="line"><span class="keyword">const</span> nums = [<span class="number">2</span> ,<span class="number">4</span> , <span class="number">6</span>, ...odd];</div><div class="line"><span class="built_in">console</span>.log(nums); <span class="comment">// [ 2, 4, 6, 1, 3, 5 ]</span></div><div class="line"></div><div class="line"><span class="comment">// cloning arrays</span></div><div class="line"><span class="keyword">const</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];</div><div class="line"><span class="keyword">const</span> arr2 = [...arr];</div></pre></td></tr></table></figure></p>
+<p>或者这样：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> odd = [<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span> ];</div><div class="line"><span class="keyword">const</span> nums = [<span class="number">2</span>, ...odd, <span class="number">4</span> , <span class="number">6</span>];</div></pre></td></tr></table></figure></p>
+<p>这样：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> &#123; a, b, ...z &#125; = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span>, <span class="attr">d</span>: <span class="number">4</span> &#125;;</div><div class="line"><span class="built_in">console</span>.log(a) <span class="comment">// 1</span></div><div class="line"><span class="built_in">console</span>.log(b) <span class="comment">// 2</span></div><div class="line"><span class="built_in">console</span>.log(z) <span class="comment">// &#123; c: 3, d: 4 &#125;</span></div></pre></td></tr></table></figure></p>
+<p>在ES6之前可能就要用到Array.concat和Object.Assign，但是没那么方便。</p>
+<h2 id="强制参数"><a href="#强制参数" class="headerlink" title="强制参数"></a>强制参数</h2><p>默认情况下，如果没有对函数的参数传入值，JavaScript将函数的参数设置为undefined，所以很多情况下会对函数的参数<br>进行检测。</p>
+<p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">bar</span>) </span>&#123;</div><div class="line">  <span class="keyword">if</span>(bar === <span class="literal">undefined</span>) &#123;</div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'Missing parameter!'</span>);</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> bar;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">mandatory = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'Missing parameter!'</span>);</div><div class="line">&#125;</div><div class="line"></div><div class="line">foo = <span class="function">(<span class="params">bar = mandatory(</span>)) =&gt;</span> &#123;</div><div class="line">  <span class="keyword">return</span> bar;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="Array-find"><a href="#Array-find" class="headerlink" title="Array.find"></a>Array.find</h2><p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> pets = [</div><div class="line">  &#123; <span class="attr">type</span>: <span class="string">'Dog'</span>, <span class="attr">name</span>: <span class="string">'Max'</span>&#125;,</div><div class="line">  &#123; <span class="attr">type</span>: <span class="string">'Cat'</span>, <span class="attr">name</span>: <span class="string">'Karl'</span>&#125;,</div><div class="line">  &#123; <span class="attr">type</span>: <span class="string">'Dog'</span>, <span class="attr">name</span>: <span class="string">'Tommy'</span>&#125;,</div><div class="line">]</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">findDog</span>(<span class="params">name</span>) </span>&#123;</div><div class="line">  <span class="keyword">for</span>(<span class="keyword">let</span> i = <span class="number">0</span>; i&lt;pets.length; ++i) &#123;</div><div class="line">    <span class="keyword">if</span>(pets[i].type === <span class="string">'Dog'</span> &amp;&amp; pets[i].name === name) &#123;</div><div class="line">      <span class="keyword">return</span> pets[i];</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">pet = pets.find(<span class="function"><span class="params">pet</span> =&gt;</span> pet.type ===<span class="string">'Dog'</span> &amp;&amp; pet.name === <span class="string">'Tommy'</span>);</div><div class="line"><span class="built_in">console</span>.log(pet); <span class="comment">// &#123; type: 'Dog', name: 'Tommy' &#125;</span></div></pre></td></tr></table></figure></p>
+<h2 id="Obejct-key"><a href="#Obejct-key" class="headerlink" title="Obejct[key]"></a>Obejct[key]</h2><p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">validate</span>(<span class="params">values</span>) </span>&#123;</div><div class="line">  <span class="keyword">if</span>(!values.first)</div><div class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">  <span class="keyword">if</span>(!values.last)</div><div class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="built_in">console</span>.log(validate(&#123;<span class="attr">first</span>:<span class="string">'Bruce'</span>,<span class="attr">last</span>:<span class="string">'Wayne'</span>&#125;)); <span class="comment">// true</span></div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// object validation rules</span></div><div class="line"><span class="keyword">const</span> schema = &#123;</div><div class="line">  <span class="attr">first</span>: &#123;</div><div class="line">    <span class="attr">required</span>:<span class="literal">true</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">last</span>: &#123;</div><div class="line">    <span class="attr">required</span>:<span class="literal">true</span></div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// universal validation function</span></div><div class="line"><span class="keyword">const</span> validate = <span class="function">(<span class="params">schema, values</span>) =&gt;</span> &#123;</div><div class="line">  <span class="keyword">for</span>(field <span class="keyword">in</span> schema) &#123;</div><div class="line">    <span class="keyword">if</span>(schema[field].required) &#123;</div><div class="line">      <span class="keyword">if</span>(!values[field]) &#123;</div><div class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="built_in">console</span>.log(validate(schema, &#123;<span class="attr">first</span>:<span class="string">'Bruce'</span>&#125;)); <span class="comment">// false</span></div><div class="line"><span class="built_in">console</span>.log(validate(schema, &#123;<span class="attr">first</span>:<span class="string">'Bruce'</span>,<span class="attr">last</span>:<span class="string">'Wayne'</span>&#125;)); <span class="comment">// true</span></div></pre></td></tr></table></figure></p>
+<h2 id="Double-Bitwise-NOT"><a href="#Double-Bitwise-NOT" class="headerlink" title="Double Bitwise NOT"></a>Double Bitwise NOT</h2><p><strong>Longhand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">Math</span>.floor(<span class="number">4.9</span>) === <span class="number">4</span>  <span class="comment">//true</span></div></pre></td></tr></table></figure></p>
+<p><strong>Shorthand:</strong><br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">~~<span class="number">4.9</span> === <span class="number">4</span>  <span class="comment">//true</span></div></pre></td></tr></table></figure></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+            <a href="/tags/翻译/" rel="tag"># 翻译</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/16/librdkafka源码分析/" rel="next" title="librdkafka源码分析">
+                <i class="fa fa-chevron-left"></i> librdkafka源码分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/07/08/JavaScript入门需要了解的概念/" rel="prev" title="JavaScript入门需要了解的概念">
+                JavaScript入门需要了解的概念 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.jpg"
+               alt="Pingeek" />
+          <p class="site-author-name" itemprop="name">Pingeek</p>
+          <p class="site-description motion-element" itemprop="description">凡所有相，皆是虚妄。</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/navono" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/navono007" title="navono(cnblog)" target="_blank">navono(cnblog)</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://lucumr.pocoo.org/" title="lucumr" target="_blank">lucumr</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.accu.org/" title="ACCU" target="_blank">ACCU</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.youtube.com/user/CppCon" title="cppCon" target="_blank">cppCon</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://eli.thegreenplace.net/" title="Eli Bendersky" target="_blank">Eli Bendersky</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://preshing.com/" title="Preshing" target="_blank">Preshing</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wiki.dreamrunner.org" title="dreamRunner" target="_blank">dreamRunner</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://bartoszmilewski.com/" title="bartoszMilewski(并发，category theory)" target="_blank">bartoszMilewski(并发，category theory)</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="www.brendangregg.com" title="BrendanGregg(perf)" target="_blank">BrendanGregg(perf)</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.madhukaraphatak.com/" title="Madhukar(大数据框架)" target="_blank">Madhukar(大数据框架)</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ithare.com/" title="IT Hare" target="_blank">IT Hare</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.icce.rug.nl/documents/cplusplus/" title="ICCE(C++)" target="_blank">ICCE(C++)</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://akrzemi1.wordpress.com/" title="Andrzej(C++)" target="_blank">Andrzej(C++)</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#三元操作符简短写法"><span class="nav-number">1.</span> <span class="nav-text">三元操作符简短写法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#短路计算简短写法"><span class="nav-number">2.</span> <span class="nav-text">短路计算简短写法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#变量声明简短写法"><span class="nav-number">3.</span> <span class="nav-text">变量声明简短写法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#If控制语句简短写法"><span class="nav-number">4.</span> <span class="nav-text">If控制语句简短写法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#for控制语句简短写法"><span class="nav-number">5.</span> <span class="nav-text">for控制语句简短写法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#短路计算"><span class="nav-number">6.</span> <span class="nav-text">短路计算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于十进制的指数"><span class="nav-number">7.</span> <span class="nav-text">基于十进制的指数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对象属性"><span class="nav-number">8.</span> <span class="nav-text">对象属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#箭头函数"><span class="nav-number">9.</span> <span class="nav-text">箭头函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#隐示返回值"><span class="nav-number">10.</span> <span class="nav-text">隐示返回值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#默认参数"><span class="nav-number">11.</span> <span class="nav-text">默认参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模板字面量"><span class="nav-number">12.</span> <span class="nav-text">模板字面量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解构赋值"><span class="nav-number">13.</span> <span class="nav-text">解构赋值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#字符串换行"><span class="nav-number">14.</span> <span class="nav-text">字符串换行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#…操作符"><span class="nav-number">15.</span> <span class="nav-text">…操作符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#强制参数"><span class="nav-number">16.</span> <span class="nav-text">强制参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Array-find"><span class="nav-number">17.</span> <span class="nav-text">Array.find</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Obejct-key"><span class="nav-number">18.</span> <span class="nav-text">Obejct[key]</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Double-Bitwise-NOT"><span class="nav-number">19.</span> <span class="nav-text">Double Bitwise NOT</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pingeek</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'navono';
+      var disqus_identifier = '2017/06/25/JavaScript的19个精简语法/';
+
+      var disqus_title = "JavaScript的19个精简语法";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
