@@ -1,5 +1,5 @@
 ---
-title: JavaScript的19个精简语法
+title: JavaScript入门需要了解的概念
 date: 2017-07-08 18:29:20
 categories: [笔记]
 tags: [JavaScript]
