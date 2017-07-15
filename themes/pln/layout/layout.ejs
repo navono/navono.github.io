@@ -1,0 +1,21 @@
+<%- partial('_partial/head') %>
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;<%- config.subtitle%>
+      </div>
+    </div>
+    <div class="container">
+      <%- body %>
+    </div>
+  </div>
+  <footer class="page-footer"><%- partial('_partial/footer') %></footer>
+  <%- partial('_partial/after_footer') %>
+</body>
+</html>

@@ -1,0 +1,23 @@
+menu:
+  主页: /
+  归档: /archives
+
+logo: PQX
+
+more:
+  友情链接: /links.html
+  Github: https://github.com/navono/
+  # 微博: http://weibo.com/XXX
+  # 知乎: https://www.zhihu.com/people/XXX
+  # rss: /rss2.xml
+  关于我: /about.html
+
+about:
+  title: Theme Pln
+  link: https://github.com/gaoryrt/hexo-theme-pln
+
+disqus_shortname: navono
+
+excerpt_num: 120
+
+footer_info: © XXX 20xx-2017
