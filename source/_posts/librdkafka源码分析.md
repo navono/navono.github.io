@@ -2,7 +2,7 @@
 title: librdkafka源码分析
 date: 2017-04-16 18:29:20
 categories: [笔记]
-tags: [C++, 源码分析]
+tags: [CPP, 源码分析]
 ---
 
 # 介绍

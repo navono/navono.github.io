@@ -2,7 +2,7 @@
 title: python的ctype与dll的交互2
 date: 2017-03-12 18:29:20
 categories: [笔记]
-tags: [C++, Python]
+tags: [CPP, Python]
 ---
 
 # 摘要

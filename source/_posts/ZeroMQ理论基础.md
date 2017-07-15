@@ -2,7 +2,7 @@
 title: ZeroMQ理论基础
 date: 2017-02-12 18:29:20
 categories: [笔记]
-tags: [C++, 翻译]
+tags: [CPP, 翻译]
 ---
 
 # 介绍

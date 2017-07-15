@@ -2,7 +2,7 @@
 title: g3log源码分析
 date: 2017-02-17 18:29:20
 categories: [笔记]
-tags: [C++, Log]
+tags: [CPP, Log]
 ---
 
 源代码地址：[github](https://github.com/KjellKod/g3log)

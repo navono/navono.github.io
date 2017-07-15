@@ -2,7 +2,7 @@
 title: Callback in C and C++
 date: 2017-03-04 18:29:20
 categories: [笔记]
-tags: [C++]
+tags: [CPP]
 ---
 
 # 动机
