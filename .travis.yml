@@ -10,7 +10,7 @@ install:
   - npm install  #安装hexo及插件
 
 before_script:
-  - git clone --branch site https://github.com/pingeek007/pingeek007.github.io.git public
+  - git clone --branch site https://github.com/navono/navono.github.io.git public
 
 script:
   - hexo cl
@@ -19,8 +19,8 @@ script:
 after_script:
   - cd ./public
   - git init
-  - git config user.name "pingeek007"  #修改name
-  - git config user.email "pingeek007@gmail.com"  #修改email
+  - git config user.name "navono007"  #修改name
+  - git config user.email "navono007@gmail.com"  #修改email
   - git add .
   - git commit -m "update by Travis-CI"
   - git push --force --quiet "https://${TOKEN}@${GH_REF}" master:master  #GH_TOKEN是在Travis中配置token的名称
@@ -31,4 +31,4 @@ branches:
 
 env:
  global:
-   - GH_REF: github.com/pingeek007/pingeek007.github.io.git  #设置GH_REF，注意更改yourname
+   - GH_REF: github.com/navono/navono.github.io.git  #设置GH_REF，注意更改yourname
