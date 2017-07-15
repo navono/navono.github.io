@@ -72,6 +72,8 @@ search:
   path: search.xml
   field: post
 
+favicon: /favicon.ico
+
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
