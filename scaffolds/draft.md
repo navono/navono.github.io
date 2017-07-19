@@ -1,5 +1,5 @@
 ---
 title: {{ title }}
-categories: []
-tags: []
+categories: 
+tags: 
 ---
