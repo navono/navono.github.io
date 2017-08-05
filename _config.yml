@@ -66,6 +66,11 @@ archive_generator:
   yearly: true
   monthly: true
 
+category_generator:
+  per_page: 0
+  yearly: true
+  monthly: true
+
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
