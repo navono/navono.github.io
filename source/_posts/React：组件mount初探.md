@@ -6,7 +6,7 @@ tags: [JavaScript, React]
 ---
 
 # 前言
-&ensp;&ensp;&ensp;[上一篇]()提及到，因为直接将`React`组件以AMD格式导出给`Qt WebEngine`使用，导致`React`在调用方`new`的时候直接对组件进行mount，却只因只加载最外层的`TopLevelWrapper`，而没有mount里面组件，导致整个组件未被正确加载（因为环境目前已被重构，具体原因还未深入探究。待之后有时间重新搭平台查询原因）。
+&ensp;&ensp;&ensp;[上一篇](http://codingwith.me/2017/08/19/React%E4%B8%8EQt%20WebEngine/)提及到，因为直接将`React`组件以AMD格式导出给`Qt WebEngine`使用，导致`React`在调用方`new`的时候直接对组件进行mount，却只因只加载最外层的`TopLevelWrapper`，而没有mount里面组件，导致整个组件未被正确加载（因为环境目前已被重构，具体原因还未深入探究。待之后有时间重新搭平台查询原因）。
 
 # 组件mount整体流程
 &ensp;&ensp;&ensp;当写下面这样的代码后：
