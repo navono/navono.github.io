@@ -14,7 +14,6 @@ Ubuntu 16.04，连接到互联网。
 安装命令：
 
 > sudo apt-get install python-pip
->
 > pip install shadowsocks
 
 
@@ -22,15 +21,10 @@ Ubuntu 16.04，连接到互联网。
 运行`sslocal`时需要指定几个参数：
 
 > "server": "服务器的ip",
->
 > "server_port": 服务器的端口,
->
 > "local_port": "127.0.0.1",
->
 > "password": 1080
->
 > "timeout": 500,
->
 > "method": "aes-256-cfb"
 
 上述参数可以在命令行中指定，也可使用配置文件，然后用指定配置文件启动`sslocal`
@@ -47,7 +41,7 @@ sslocal -c /home/test/shadowsocks.json
 
 不管在终端中输入还是运行脚本，整个终端会被占据，所以可能需要后台运行：
 
-> nohup sh /home/shadow.sh &
+> nohup sh /home/usr/shadow.sh > /home/usr/log.out 2>&1 &
 
 
 
@@ -59,7 +53,7 @@ sslocal -c /home/test/shadowsocks.json
 
 > sudo apt-get install polipo
 
-修改`polipo`配置文件如下：
+修改`polipo`配置文件(/etc/polipo/config)如下：
 
 ```bash
 # This file only needs to list configuration variables that deviate
@@ -89,7 +83,6 @@ proxyPort = 8123
 此时可一检测下代理是否正常运行：
 
 > export http_proxy="http://127.0.0.1:8123/"
->
 > curl www.google.com
 
 如果一切正常，终端会显示抓取到的`Google`网页的内容。
