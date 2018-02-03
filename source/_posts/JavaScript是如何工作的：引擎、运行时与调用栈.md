@@ -11,7 +11,7 @@ tags: [JavaScript]
 
 # JavaScript引擎
 目前最受欢迎的就是Google的`V8`引擎了。`V8`被用在了`Google Chrome`和`Node.js`中。下面的图形简单展示了`JavaScript`引擎的基本工作：
-![Engin](js-engine.PNG)
+![Engine](js-engine.PNG)
 
 引擎主要负责两部分：
 - 内存管理：也就是内存的分配与释放
