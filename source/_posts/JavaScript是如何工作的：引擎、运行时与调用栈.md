@@ -11,7 +11,7 @@ tags: [JavaScript]
 
 # JavaScript引擎
 目前最受欢迎的就是Google的`V8`引擎了。`V8`被用在了`Google Chrome`和`Node.js`中。下面的图形简单展示了`JavaScript`引擎的基本工作：
-![Engin](./JavaScript是如何工作的/js-engine.PNG)
+![Engin](js-engine.PNG)
 
 引擎主要负责两部分：
 - 内存管理：也就是内存的分配与释放
@@ -19,7 +19,7 @@ tags: [JavaScript]
 
 # 运行时
 在日常开发中，我们还会一些其他的`API`，比如`setTimeout`，这些`API`都是执行在浏览器环境中，这些`API`自然不是`JavaScript引擎`提供的。这些都称之为`Web API`，是由浏览器提供的，除了`setTimeout`，还有操作`DOM`的，`AJAX`等。除去这些还有用来相应`DOM`事件的`事件循环`和`回调队列`。
-![browser](./JavaScript是如何工作的/browser.PNG)
+![browser](browser.PNG)
 
 
 # 调用栈
@@ -36,7 +36,7 @@ printSquare(5);
 ```
 
 当上述的代码开始执行时，`调用栈`是空的。之后开始调用`printSquare`，接着`multiply`，接着`console`，然后开始出栈。形象化表示是这样的：
-![CallStack](./JavaScript是如何工作的/stack.PNG)
+![CallStack](stack.PNG)
 
 调用栈中的每个条目称之为`栈帧（Stack Frame）`
 
@@ -59,7 +59,7 @@ start();
 ```
 
 如果上述代码运行在`Chrome`中的话，我们可以在`Chrome Del Tools`的`Console`面板中发现会输出一行错误：
-![exception](./JavaScript是如何工作的/exception.png)
+![exception](exception.png)
 
 上面的错误直接反映了调用栈的结构。
 
@@ -72,15 +72,15 @@ function foo() {
 foo();
 ```
 上述代码如果在`Chrome`中，会发现进程会卡死一段时间，然后在`Chrome Del Tools`的`Console`面板中出现错误:
-![stack](./JavaScript是如何工作的/stackError.png)
+![stack](stackError.png)
 
 调用栈形象化表示是这样的：
-![stack](./JavaScript是如何工作的/stackOver.png)
+![stack](stackOver.png)
 
 
 # 并发与事件循环
 因为`JavaScript`是单线程，所以如果要执行一个耗时的操作，比如复杂的图片转换，就会导致页面出现卡顿现象。此时就无法相应界面的任何操作，导致了非常不好的用户体验。甚至有时会出现以下的提示：
-![stuck](./JavaScript是如何工作的/stuck.jpeg)
+![stuck](stuck.jpeg)
 
 解决这个问题的办法就是使用`异步回调（asynchronous callbacks）`。
 
