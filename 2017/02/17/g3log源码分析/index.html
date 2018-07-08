@@ -1,0 +1,192 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>g3log源码分析</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="g3log源码分析"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        g3log源码分析
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-02-17T18:29:20.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-02-17
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/Log/">Log</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#代码量"><span class="toc-number">1.</span> <span class="toc-text">代码量</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#结构"><span class="toc-number">2.</span> <span class="toc-text">结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#头文件结构"><span class="toc-number">2.1.</span> <span class="toc-text">头文件结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#主要类"><span class="toc-number">2.2.</span> <span class="toc-text">主要类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#全局方法"><span class="toc-number">2.3.</span> <span class="toc-text">全局方法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#线程模型"><span class="toc-number">3.</span> <span class="toc-text">线程模型</span></a></li></ol>
+    <p>源代码地址：<a href="https://github.com/KjellKod/g3log" target="_blank" rel="noopener">github</a></p>
+<h1 id="代码量"><a href="#代码量" class="headerlink" title="代码量"></a>代码量</h1><p><img src="g3log_loc.PNG" alt="统计"></p>
+<p>从代码量上看，代码不是很多，所以整个库的结构也不会太复杂。首先从整体上有个概念，就需要看下整个库的类结构如何，以及类间的关系如何。</p>
+<h1 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h1><h2 id="头文件结构"><a href="#头文件结构" class="headerlink" title="头文件结构"></a>头文件结构</h2><p>通过VS2015的头文件依赖图，从整体的头文件依赖结构上看下整个工程是如何依赖的。</p>
+<p><img src="hppDepends.PNG" alt="依赖"></p>
+<h2 id="主要类"><a href="#主要类" class="headerlink" title="主要类"></a>主要类</h2><p>首先是LogWorker，这是库的核心类，包含了创建LogWorker实例的静态方法：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;LogWorker&gt; createLogWorker();</span><br></pre></td></tr></table></figure>
+<p>以及构建本地log日志文件信息和Sink的方法：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;FileSinkHandle&gt; addDefaultLogger(</span><br><span class="line">		   <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; log_prefix, </span><br><span class="line">		   <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; log_directory, </span><br><span class="line">		   <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; default_id = <span class="string">"g3log"</span>);</span><br><span class="line">           </span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> DefaultLogCall&gt;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;g3::SinkHandle&lt;T&gt;&gt; addSink(<span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;T&gt; real_sink, DefaultLogCall call);</span><br></pre></td></tr></table></figure>
+<p>最后就是保存日志的两个方法，一个是正常的保存，一个是异常的保存：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">save</span><span class="params">(LogMessagePtr entry)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">fatal</span><span class="params">(FatalMessagePtr fatal_message)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>内部还有一个私有的实现impl：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LogWorkerImpl _impl;</span><br></pre></td></tr></table></figure>
+<p>LogWorkerImpl内部保存了Sink的的列表，以及一个C++11线程的Active对象。也是这个log库号称异步的原因。<br>线程的Active实现如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="built_in">std</span>::function&lt;<span class="keyword">void</span>() &gt; Callback;</span><br><span class="line">   <span class="class"><span class="keyword">class</span> <span class="title">Active</span> &#123;</span></span><br><span class="line">   <span class="keyword">private</span>:</span><br><span class="line">      Active() : done_(<span class="literal">false</span>) &#123;&#125; <span class="comment">// Construction ONLY through factory createActive();</span></span><br><span class="line">      Active(<span class="keyword">const</span> Active &amp;) = <span class="keyword">delete</span>;</span><br><span class="line">      Active &amp;<span class="keyword">operator</span>=(<span class="keyword">const</span> Active &amp;) = <span class="keyword">delete</span>;</span><br><span class="line">      <span class="function"><span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">         <span class="keyword">while</span> (!done_) &#123;</span><br><span class="line">            Callback func;</span><br><span class="line">            mq_.wait_and_pop(func);</span><br><span class="line">            func();</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      shared_queue&lt;Callback&gt; mq_;</span><br><span class="line">      <span class="built_in">std</span>::thread thd_;</span><br><span class="line">      <span class="keyword">bool</span> done_;</span><br><span class="line">   <span class="keyword">public</span>:</span><br><span class="line">      <span class="keyword">virtual</span> ~Active() &#123;</span><br><span class="line">         send([<span class="keyword">this</span>] &#123; done_ = <span class="literal">true</span>;&#125;);</span><br><span class="line">         thd_.join();</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="function"><span class="keyword">void</span> <span class="title">send</span><span class="params">(Callback msg_)</span> </span>&#123;</span><br><span class="line">         mq_.push(msg_);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">/// Factory: safe construction of object before thread start</span></span><br><span class="line">      <span class="keyword">static</span> <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Active&gt; createActive() &#123;</span><br><span class="line">         <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Active&gt; aPtr(<span class="keyword">new</span> Active());</span><br><span class="line">         aPtr-&gt;thd_ = <span class="built_in">std</span>::thread(&amp;Active::run, aPtr.get());</span><br><span class="line">         <span class="keyword">return</span> aPtr;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;;</span><br></pre></td></tr></table></figure>
+<p>整体的思路就是维护一个消息queue，然后在run中不停地从queue中取对象执行。当queue中没有消息时，run会等待在mq_.wait_and_pop(func)这里。</p>
+<p>LogWorker的save和fatal是将消息转发给LogWorkerImpl的后台线程去执行，具体执行的是LogWorkerImpl的bgSave和bgFatal。而这两个方法最后都会传递给Sink<t>的实例的send去执行。接下来就是Sink的具体实现。源码中只实现了FileSink，也就是将日志消息保存到本地文件中。这个类的内部的fileWrite方法也是Thread Active最终要执行的执行体。</t></p>
+<p>这里有个需要注意的地方。就是内部使用的Sink都是被封装成模板类Sink<t>（继承SinkWrapper接口）的实例，Sink<t>本身有两个方法：</t></t></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">void send(LogMessageMover msg) override；</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Call, <span class="keyword">typename</span>... Args&gt;</span><br><span class="line">auto async(Call call, Args &amp;&amp;... args)-&gt; std::future&lt; typename std::result_of&lt;decltype(call)(T, Args...)&gt;::type&gt;();</span><br></pre></td></tr></table></figure>
+<p>以及一个函数对象_default_log_call：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="built_in">std</span>::function&lt;<span class="keyword">void</span>(LogMessageMover) &gt; AsyncMessageCall;</span><br><span class="line">AsyncMessageCall _default_log_call;</span><br></pre></td></tr></table></figure></p>
+<p>保存的是最初传入的FileSink::fileWrite。</p>
+<p>第一个方法是对SinkWrapper接口API的实现。而第二个方法则是返回给用户用于异步调用的。也就是SinkHandle<t>，其中的T就是Sink<t>。最后Sink<filesink>保存在LogWorkerImpl的std::vector _sinks中。</filesink></t></t></p>
+<p>最后一个就是LOG宏中用到的LogCapture。此类中包含了一条log日志的所有信息：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">std::ostringstream _stream;</span><br><span class="line">std::string _stack_trace;</span><br><span class="line"><span class="keyword">const</span> char *_file;</span><br><span class="line"><span class="keyword">const</span> int _line;</span><br><span class="line"><span class="keyword">const</span> char *_function;</span><br><span class="line"><span class="keyword">const</span> LEVELS &amp;_level;</span><br><span class="line"><span class="keyword">const</span> char *_expression;</span><br><span class="line"><span class="keyword">const</span> g3::SignalType _fatal_signal;</span><br></pre></td></tr></table></figure>
+<p>在析构时，调用全局的：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">saveMessage(_stream.str().c_str(), _file, _line, _function, _level, _expression, _fatal_signal, _stack_trace.c_str());</span><br></pre></td></tr></table></figure>
+<p>进行日志保存。</p>
+<h2 id="全局方法"><a href="#全局方法" class="headerlink" title="全局方法"></a>全局方法</h2><p>包含以下几个全局设置的方法：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">initializeLogging</span><span class="params">(LogWorker *logger)</span></span>;</span><br><span class="line">void setFatalPreLoggingHook(std::function&lt;void(void)&gt;  pre_fatal_hook);</span><br><span class="line">void setFatalExitHandler(std::function&lt;void(FatalMessagePtr)&gt; fatal_call);</span><br></pre></td></tr></table></figure>
+<p>还有在namespace internal的：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">saveMessage</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *entry, <span class="keyword">const</span> <span class="keyword">char</span> *file, <span class="keyword">int</span> line, <span class="keyword">const</span> <span class="keyword">char</span> *function, <span class="keyword">const</span> LEVELS &amp;level, <span class="keyword">const</span> <span class="keyword">char</span> *boolean_expression, <span class="keyword">int</span> fatal_signal, <span class="keyword">const</span> <span class="keyword">char</span> *stack_trace)</span></span></span><br></pre></td></tr></table></figure>
+<h1 id="线程模型"><a href="#线程模型" class="headerlink" title="线程模型"></a>线程模型</h1><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">graph TB</span><br><span class="line">	 subgraph main</span><br><span class="line">        createLogWorker--&gt;addDefaultLogger</span><br><span class="line">        addDefaultLogger--&gt;initializeLogging</span><br><span class="line">        end</span><br><span class="line">        subgraph LogWorkerImpl</span><br><span class="line">        bgSave--&gt;sink<span class="string">'save</span></span><br><span class="line"><span class="string">        end</span></span><br><span class="line"><span class="string">        subgraph sink</span></span><br><span class="line"><span class="string">        sink_bg--&gt;_default_log_call</span></span><br><span class="line"><span class="string">        end</span></span><br><span class="line"><span class="string">        LOG--&gt;saveMessage</span></span><br><span class="line"><span class="string">        saveMessage--&gt;LogWork_save</span></span><br><span class="line"><span class="string">        LogWork_save-- async --&gt;bgSave</span></span><br><span class="line"><span class="string">        sink'</span>save-- <span class="keyword">async</span> --&gt;sink_bg</span><br></pre></td></tr></table></figure>
+<p>不支持。。。Fu*k。</p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/02/17/g3log源码分析/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

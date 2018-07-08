@@ -1,0 +1,184 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>python的ctype与dll的交互注意点</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="python的ctype与dll的交互注意点"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        python的ctype与dll的交互注意点
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-01-22T18:29:20.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-01-22
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/Python/">Python</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#摘要"><span class="toc-number">1.</span> <span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#注意点"><span class="toc-number">2.</span> <span class="toc-text">注意点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#matplotlib"><span class="toc-number">3.</span> <span class="toc-text">matplotlib</span></a></li></ol>
+    <h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><p>这篇文章不会告诉读者如何去使用ctypes，如何使用ctypes在网上已经有很多重复、简单的例子。这篇文章只是记录自己在实际开发中，使用python测试一个dll模块中遇到的各种问题以及解决办法。</p>
+<h1 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h1><p>网络上已经有很多关于ctypes如何与dll交互的文章，大多数也都是点到为止。比如基本类型的使用，指针与引用的处理。但是在实际编程过程中，这里面还有很多细节点需要注意。</p>
+<ul>
+<li><p>版本匹配</p>
+<p>这里要求的是安装的python版本位数与交互的dll的编译版本位数要一致。否则在python加载dll时会提示加载失败。</p>
+</li>
+<li><p>数据类型</p>
+<p>很多博客中已经提及了日常所用的一些C的数据类型，比如c_int,c_long。但是如果用C++开发，且同时用了windows类型，COM类型，那么很明显，基本类型是不够的，自己写class又繁琐。例如VARIANT，FILETIME。这些都是已知的类型。那么就需要导入相应的包。windows类型需要相应的wintypes；COM类型可以借助comtypes包。</p>
+</li>
+<li><p>运行环境</p>
+<p>我自己在开发中使用的python3.X，3.X默认的是使用Unicode。如果dll内部接收的是ASCII的字符串，那么就需要先进行转换，再调用API。可以使用create_string_buffer()进行转换。<br>如果python加载的dll同时还依赖其他的dll，如果不做任何处理，python加载dll时会提示加载失败。原因是python会从python.exe的目录查找被依赖的dll，结果当然就是找不到，所以失败。解决办法有两个：</p>
+<ul>
+<li>第一个是将被依赖的dll的目录加入到环境变量中；</li>
+<li>第二个是将被依赖的所有dll拷贝到python.exe目录。</li>
+</ul>
+<p>在dll代码中，可能存在参数为const char<em>类型，调用方传入nullptr或者NULL的情况。此时python运行期会提示错误。原因没有调查，不得而知。变通方案就是将传入的nullptr改成””。<br>如果dll的导出API接收const char</em>类型，而python又需要传入一个空字符串。如果直接使用””，在dll代码中使用param == ‘\0’将会失败。具体原因未知，但是通过调试，dll端接收到的却是是长度为0的字符串。变通方案就是在dll端用再用长度判断一下。</p>
+<p>在dll端，我们很大概率会使用结构体存储一个结构。比如下面这种格式：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Inner</span>&#123;</span></span><br><span class="line">  <span class="keyword">int</span> a;</span><br><span class="line">  <span class="keyword">char</span> *b;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Outter</span> &#123;</span></span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">int</span> count;</span><br><span class="line">Inner* pInner;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>一个API接收一个Outter数组指针：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="string">"C"</span> declspec(_dllexport) <span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">(Outter *param, <span class="keyword">unsigned</span> <span class="keyword">int</span> count)</span></span>;</span><br></pre></td></tr></table></figure></p>
+<p>此时在python端，我们需要定义相应的数据结构，如果在C的代码中使用了指针，那么对应在python端也需要使用POINTER：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">class Inner(Structure):</span><br><span class="line">		_fields_ = [(<span class="string">"a"</span>, c_int),</span><br><span class="line">       			 (<span class="string">"b"</span>,c_char_p)]</span><br><span class="line">class Outter(Structure):</span><br><span class="line">		_fields_ = [(<span class="string">"count"</span>, c_uint),</span><br><span class="line">       			(<span class="string">"pInner"</span>, POINTER(Inner))]</span><br></pre></td></tr></table></figure>
+<p>这样，在调用的时候，Outter的实例外层加上byref即可：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">count = <span class="number">2</span></span><br><span class="line">outter_type = Ouuter * count</span><br><span class="line">outter = outter_type()</span><br><span class="line">dll.func(byref(outter), c_uint(count))</span><br></pre></td></tr></table></figure></p>
+<h1 id="matplotlib"><a href="#matplotlib" class="headerlink" title="matplotlib"></a>matplotlib</h1><p>发现在测试接口中，有些数据集和时间相关。直接从接口中返回的数据倒是有了，但是很难高效地验证数据的有效性。此时借助matplotlib，将数据集通过图表的形式展示出来，就大大提高了验证数据有效性的效率，同时也很方便观察。</p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/01/22/python的ctype与dll的交互注意点/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

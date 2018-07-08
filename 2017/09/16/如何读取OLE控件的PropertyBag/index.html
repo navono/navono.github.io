@@ -1,0 +1,166 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>如何读取OLE控件的PropertyBag</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="如何读取OLE控件的PropertyBag"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        如何读取OLE控件的PropertyBag
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-09-16T08:30:32.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-09-16
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/OLE/">OLE</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#目的"><span class="toc-number">1.</span> <span class="toc-text">目的</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#实现方法"><span class="toc-number">2.</span> <span class="toc-text">实现方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#第一步"><span class="toc-number">2.1.</span> <span class="toc-text">第一步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第二步"><span class="toc-number">2.2.</span> <span class="toc-text">第二步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第三步"><span class="toc-number">2.3.</span> <span class="toc-text">第三步</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+    <h1 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h1><p>&ensp;&ensp;&ensp;本篇的目的就是记录下如何获取OLE控件的属性页的全部属性。想要达到这个目的的时候，在网上搜寻了一番，基本没找到可用的信息。因此就开始自我探寻。碰巧之前在开发OLE的时候，见到有个叫TstCon.exe的工具，这个工具的功能就是类似加载系统注册的OCX控件。后来在<a href="https://github.com/Microsoft/VCSamples" target="_blank" rel="noopener">github</a>上找到了源码，因此问题也就迎刃而解了。在此简单记录一下。</p>
+<h1 id="实现方法"><a href="#实现方法" class="headerlink" title="实现方法"></a>实现方法</h1><h2 id="第一步"><a href="#第一步" class="headerlink" title="第一步"></a>第一步</h2><p>&ensp;&ensp;&ensp;获取控件的接口<code>IPersistPropertyBag</code>指针，这个可以通过<code>QueryInterface</code>取得：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HRESULT hResult;</span><br><span class="line">IPersistPropertyBagPtr pPersistPropertyBag;</span><br><span class="line"></span><br><span class="line">hResult = m_lpObject-&gt;QueryInterface( IID_IPersistPropertyBag,(<span class="keyword">void</span>**)&amp;pPersistPropertyBag );</span><br></pre></td></tr></table></figure></p>
+<h2 id="第二步"><a href="#第二步" class="headerlink" title="第二步"></a>第二步</h2><p>&ensp;&ensp;&ensp;在<code>IPersistPropertyBagPtr</code>接口中，还没办法直接获取PropertyBag。而是调其方法，将属性保存到一个实现了接口<code>IPropertyBag</code>的类中：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">IPropertyBag* pPropertyBag</span><br><span class="line">hResult = pPersistPropertyBag-&gt;Save(pPropertyBag, TRUE, TRUE);</span><br></pre></td></tr></table></figure></p>
+<h2 id="第三步"><a href="#第三步" class="headerlink" title="第三步"></a>第三步</h2><p>&ensp;&ensp;&ensp;实现一个继承了<code>IPropertyBag</code>的类。<code>IPropertyBag</code>接口有以下方法需要实现：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">STDMETHOD(Read)(LPCOLESTR pszPropName, VARIANT* pvarValue, IErrorLog* pErrorLog);</span><br><span class="line">STDMETHOD(Write)(LPCOLESTR pszPropName, VARIANT* pvarValue);</span><br></pre></td></tr></table></figure></p>
+<p>也就是一个读一个写。写方法由<code>pPersistPropertyBag-&gt;Save</code>将OCX控件内的属性读入到<code>IPropertyBag</code>的实现类中。然后可以用读方法，通过属性名获取其值。通常情况下可能还需要实现<code>IUnknown</code>的三个接口用来管理COM指针：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">STDMETHOD_(ULONG, AddRef)();</span><br><span class="line">STDMETHOD_(ULONG, Release)();</span><br><span class="line">STDMETHOD(QueryInterface)(REFIID iid, <span class="keyword">void</span>** ppInterface);</span><br></pre></td></tr></table></figure></p>
+<p>&ensp;&ensp;&ensp;可以确定的是，在<code>IPropertyBag</code>的实现类中需要用队列或者某种方式保存KV对。这样才能在<code>pPersistPropertyBag-&gt;Save</code>调用之后，属性值能被外界读取。而在<code>TstCon</code>的源码中恰好实现了一个PropertyBag类。几乎可以重用它的所有代码。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&ensp;&ensp;&ensp;<code>TstCon</code>的源码中有很多设计是比较经典的，因为它实现了一个<code>OCX控件</code>容器的功能。如果是在基于<code>MFC</code>的<code>OCX控件</code>的展示，配置等，有很多代码的设计可以借鉴。当然这个技术实在是太古老了，目前在新项目中很少人会选择这样的技术，网上的相关资源也越来越少，遇到棘手问题只能自行解决。了解这个技术所带来的回报也越来越低，能用到的最多也只是维护老项目过程中。</p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/09/16/如何读取OLE控件的PropertyBag/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

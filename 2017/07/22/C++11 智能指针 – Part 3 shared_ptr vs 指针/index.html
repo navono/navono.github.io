@@ -1,0 +1,183 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>C++11 智能指针 – Part 3 shared_ptr vs 指针</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="C++11 智能指针 – Part 3 shared_ptr vs 指针"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        C++11 智能指针 – Part 3 shared_ptr vs 指针
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-07-22T19:09:31.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-07-22
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/翻译/">翻译</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#缺失-，–-和-操作符"><span class="toc-number">1.</span> <span class="toc-text">缺失 ++，– 和 [] 操作符</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#NULL-检查"><span class="toc-number">2.</span> <span class="toc-text">NULL 检查</span></a></li></ol>
+    <p><a href="http://thispointer.com/how-shared_ptr-object-is-different-from-a-raw-pointer/" target="_blank" rel="noopener">原文地址</a></p>
+<blockquote>
+<p>译注： 本翻译只遵循文章要表达的意图，而不会逐句翻译。</p>
+</blockquote>
+<blockquote>
+<p>这个是一系列关于智能指针的文章，谈及的东西都是比较入门的介绍。</p>
+</blockquote>
+<p>我们从以下几个方面对<code>shared_ptr</code>对象和裸指针进行比较。</p>
+<h1 id="缺失-，–-和-操作符"><a href="#缺失-，–-和-操作符" class="headerlink" title="缺失 ++，– 和 [] 操作符"></a>缺失 ++，– 和 [] 操作符</h1><p>和裸指针相比，<code>shared_ptr</code>对象只提供以下操作符：</p>
+<ul>
+<li>-&gt;, *</li>
+<li>比较操作符</li>
+</ul>
+<p>不提供以下：</p>
+<ul>
+<li>算数运算，比如：+，-，++，–</li>
+<li>[]操作符</li>
+</ul>
+<p>看下代码：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Sample</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">dummyFunction</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"dummyFunction"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Sample&gt; ptr = <span class="built_in">std</span>::make_shared&lt;Sample&gt;();</span><br><span class="line"></span><br><span class="line">	(*ptr).dummyFunction(); <span class="comment">// Will Work</span></span><br><span class="line"></span><br><span class="line">	ptr-&gt;dummyFunction(); <span class="comment">// Will Work</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// ptr[0]-&gt;dummyFunction(); // 编译会失败。</span></span><br><span class="line">	<span class="comment">// ptr++;  // 编译会失败。</span></span><br><span class="line">	<span class="comment">//ptr--;  // 编译会失败。</span></span><br><span class="line"></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Sample&gt; ptr2(ptr);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (ptr == ptr2) <span class="comment">// 能运行</span></span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"ptr and ptr2 are equal"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dummyFunction</span><br><span class="line">dummyFunction</span><br><span class="line">ptr <span class="keyword">and</span> ptr2 are equal</span><br></pre></td></tr></table></figure></p>
+<h1 id="NULL-检查"><a href="#NULL-检查" class="headerlink" title="NULL 检查"></a>NULL 检查</h1><p>创建一个<code>shared_ptr</code>对象而不对其赋值，那么它就是空的。然而，如果我们创建一个裸指针而不对其赋值，那么它有可能是指向一个垃圾内存地址，同时我们又没办法去验证它所指的内存地址是垃圾地址还是有效地址。</p>
+<p>我们可以对<code>shared_ptr</code>进行这样的检测：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Sample&gt; ptr3;</span><br><span class="line"><span class="keyword">if</span>(!ptr3)</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Yes, ptr3 is empty"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"><span class="keyword">if</span>(ptr3 == <span class="literal">NULL</span>)</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"ptr3 is empty"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"><span class="keyword">if</span>(ptr3 == <span class="literal">nullptr</span>)</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"ptr3 is empty"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure></p>
+<p>也可以访问<code>shared_ptr</code>内部的裸指针：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Sample&gt; ptr = <span class="built_in">std</span>::make_shared&lt;Sample&gt;();</span><br><span class="line">Sample * rawptr = ptr.get();</span><br></pre></td></tr></table></figure></p>
+<p>但是通常不建议这么做。因为如果将内部的指针取出后进行删除，当<code>shared_ptr</code>超出作用域同时引用计数为0时再次删除内部的资源时会导致程序崩溃。</p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/07/22/C++11 智能指针 – Part 3 shared_ptr vs 指针/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

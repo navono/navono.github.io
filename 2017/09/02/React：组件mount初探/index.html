@@ -1,0 +1,219 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>React：组件mount初探</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="React：组件mount初探"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        React：组件mount初探
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-09-02T10:26:02.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-09-02
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/JavaScript/">JavaScript</a>·<a href="/tags/React/">React</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#组件mount整体流程"><span class="toc-number">2.</span> <span class="toc-text">组件mount整体流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#组件mount"><span class="toc-number">2.1.</span> <span class="toc-text">组件mount</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#组件更新"><span class="toc-number">2.2.</span> <span class="toc-text">组件更新</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#深入源码"><span class="toc-number">3.</span> <span class="toc-text">深入源码</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#第一步：确认节点类型，创建内部节点实例"><span class="toc-number">3.1.</span> <span class="toc-text">第一步：确认节点类型，创建内部节点实例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第二步：根据不同节点，递归渲染子节点，构建组件生命周期"><span class="toc-number">3.2.</span> <span class="toc-text">第二步：根据不同节点，递归渲染子节点，构建组件生命周期</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第三步：在container中创建相应的原生DOM元素"><span class="toc-number">3.3.</span> <span class="toc-text">第三步：在container中创建相应的原生DOM元素</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Chrome-Dev-Tool验证"><span class="toc-number">4.</span> <span class="toc-text">Chrome Dev Tool验证</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+    <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&ensp;&ensp;&ensp;<a href="http://codingwith.me/2017/08/19/React%E4%B8%8EQt%20WebEngine/">上一篇</a>提及到，因为直接将<code>React</code>组件以AMD格式导出给<code>Qt WebEngine</code>使用，导致<code>React</code>在调用方<code>new</code>的时候直接对组件进行mount，却只因只加载最外层的<code>TopLevelWrapper</code>，而没有mount里面组件，导致整个组件未被正确加载（因为环境目前已被重构，具体原因还未深入探究。待之后有时间重新搭平台查询原因）。</p>
+<h1 id="组件mount整体流程"><a href="#组件mount整体流程" class="headerlink" title="组件mount整体流程"></a>组件mount整体流程</h1><p>&ensp;&ensp;&ensp;当写下面这样的代码后：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Hello</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(props, context) &#123;</span><br><span class="line">    <span class="keyword">super</span>(props, context);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;div&gt;Hello &#123;<span class="keyword">this</span>.props.msg&#125;&lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    );</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">ReactDOM.render(</span></span><br><span class="line"><span class="regexp">  &lt;Hello /</span>&gt;,</span><br><span class="line">  <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure></p>
+<p><code>React</code>会做以下几件事情：</p>
+<ul>
+<li>根据render中的类型实例化元素类型，比如是原生元素还是组合组件；</li>
+<li>在container（也就是document.getElementById(‘root’)）中根据上述的类型创建DOM元素；</li>
+</ul>
+<p>&ensp;&ensp;&ensp;简单来说<code>React</code>就是做了以上两件事情。当然其中有很多细节，比如组件嵌套时，需要递归创建实例，然后在DOM创建相应的DOM节点，比如需要对组件的生命期进行管理。也就是：</p>
+<h2 id="组件mount"><a href="#组件mount" class="headerlink" title="组件mount"></a>组件mount</h2><p><code>constructor -&gt; componentWillMount -&gt; render -&gt; componentDidMount</code></p>
+<h2 id="组件更新"><a href="#组件更新" class="headerlink" title="组件更新"></a>组件更新</h2><p><code>componentWillReceiveProps -&gt; shouldComponentUpdate -&gt; componentWillUpdate -&gt; render -&gt; componentDidUpdate</code></p>
+<p><code>React</code>需要在以上的阶段适当地调用用户的回调函数。在实现组件的<code>mount</code>过程中，使用了几个全局的操作：</p>
+<ul>
+<li>ReactUpdates的batch</li>
+<li>Transaction</li>
+<li>ReactReconciler</li>
+</ul>
+<p>其中各个功能另外再表，在此不多说。</p>
+<h1 id="深入源码"><a href="#深入源码" class="headerlink" title="深入源码"></a>深入源码</h1><p>&ensp;&ensp;&ensp;从最初的用户代码的<code>render</code>开始。从<code>render</code>的签名来看，就是把第一个参数的组件，渲染到第二个DOM节点（也就是称之为container）中。<code>React</code>源码基于v16.0-beta。</p>
+<h2 id="第一步：确认节点类型，创建内部节点实例"><a href="#第一步：确认节点类型，创建内部节点实例" class="headerlink" title="第一步：确认节点类型，创建内部节点实例"></a>第一步：确认节点类型，创建内部节点实例</h2><p>&ensp;&ensp;&ensp;在<code>_renderSubtreeIntoContainer</code>中获取<code>container</code>的顶层节点来判断是否更新已有的节点，还是创建新的根节点。在此只讨论新建根节点情况。</p>
+<p>&ensp;&ensp;&ensp;在<code>_renderNewRootComponent</code>中，根据节点类型创建实例。有几种类型：</p>
+<ul>
+<li>node为null或false时，创建类型<code>ReactEmptyComponent</code>实例</li>
+<li>node为对象时，根据node的element的type来创建<ul>
+<li>type为string时，创建类型为<code>ReactHostComponent.createInternalComponent</code>实例</li>
+<li>type为内部组件类型时，直接调用其构造函数</li>
+<li>其他情况，创建类型<code>ReactCompositeComponentWrapper</code>实例</li>
+</ul>
+</li>
+<li>node为string时，创建类型<code>ReactHostComponent.createInstanceForText</code>实例</li>
+</ul>
+<p>&ensp;&ensp;&ensp;接下来就是根据不同的实例进行组件的<code>mount</code>操作。其中<code>mount</code>过程通过<code>ReactUpdates.batchedUpdates</code>进行调用。元素类型来说可以分为两类:</p>
+<ul>
+<li>第一类就是和平台环境相关的称之为<code>Host Component</code></li>
+<li>另一类就是用户自定义的，称之为<code>Composite Component</code></li>
+</ul>
+<h2 id="第二步：根据不同节点，递归渲染子节点，构建组件生命周期"><a href="#第二步：根据不同节点，递归渲染子节点，构建组件生命周期" class="headerlink" title="第二步：根据不同节点，递归渲染子节点，构建组件生命周期"></a>第二步：根据不同节点，递归渲染子节点，构建组件生命周期</h2><p>&ensp;&ensp;&ensp;在<code>mountComponentIntoNode</code>中，<code>ReactReconciler.mountComponent</code>会根据第一步的实例，调用各个类型的<code>mountComponent</code>函数。</p>
+<p>&ensp;&ensp;&ensp;在此详细讲述下<code>ReactCompositeComponentWrapper</code>类型实例的<code>mountComponent</code>过程。</p>
+<ol>
+<li>首先是环境的准备，包括元素的<code>props</code>保存，创建上线文<code>context</code>环境，根据组件的类型（函数式也称为纯组件或者类声明）来判断是否需要实例化。</li>
+<li><p>接下来就是构造实例。简单描述下<code>React</code>内部返回给<code>render</code>的实例的几个重要的字段。</p>
+<ul>
+<li><code>_currentElement</code>：主要是保存和组件相关的信息，包括组件类型，props，refs等，用来渲染真实的DOM元素所用</li>
+<li><code>_instance</code>：上述<code>_currentElement</code>的实例</li>
+<li><p><code>_renderedComponent</code>：这是一个内部的类型实例，也就是上面说的<code>Host Component</code>或者<code>Composite Component</code>。当然具体到实例化的时候会有更细的分类</p>
+<p>此处构造的实例就是<code>_instance</code>，包括初始化内部的updater，ref，props等，为组件在更新时所用。确切点说就是会进入组件的构造函数中。同时<code>React</code>会保存这个实例到一个InstanceMap中。实例化完就调用组件<code>生命周期hooks</code>中的<code>componentWillMount</code>，如果有的话。</p>
+</li>
+</ul>
+</li>
+<li><p>构造完实例，接下来就是进行<code>mount</code>了。<code>ReactCompositeComponentWrapper</code>会调用组件中的<code>render</code>方法，同时这里会判断是否有子节点，有的话就对其<code>_instantiateReactComponent</code>，然后对子节点进行<code>mountComponent</code>调用，直到和平台相关的元素为止。递归返回后，将此实例赋给<code>_renderedComponent</code>。</p>
+</li>
+<li><p>执行完<code>mount</code>，回到组件<code>生命周期hooks</code>，也就是调用<code>componentDidMount</code>。整个过程也就算是结束了。</p>
+</li>
+</ol>
+<p>需要注意的一点是，上述的<code>mount</code>是递归构造的。</p>
+<h2 id="第三步：在container中创建相应的原生DOM元素"><a href="#第三步：在container中创建相应的原生DOM元素" class="headerlink" title="第三步：在container中创建相应的原生DOM元素"></a>第三步：在container中创建相应的原生DOM元素</h2><p>&ensp;&ensp;&ensp;在第二步的创建实例过程中，如果元素的类型为<code>string</code>的话，那么会创建<code>ReactHostComponent</code>的<code>InternalComponent</code>，也就是<code>ReactDOMComponent</code>。然后在其<code>mountComponent</code>中，使用<code>render</code>最初传入的<code>Container</code>。使用实例中的<code>_currentElement</code>的信息(包括标签的类型，属性信息等)，在<code>Container</code>中的<code>document</code>中创建相关的元素。在创建相关的元素的过程中，<code>React</code>会做一些相关的处理，比如增加一些注释等等。</p>
+<h1 id="Chrome-Dev-Tool验证"><a href="#Chrome-Dev-Tool验证" class="headerlink" title="Chrome Dev Tool验证"></a>Chrome Dev Tool验证</h1><p>&ensp;&ensp;&ensp;基于最初的那一段代码，从Dev Tool中查看相应的节点信息是否符合上述的源码解释。首先是<code>Top-Level</code>：<br><img src="TopLevel.PNG" alt="TopLevel"><br>可以看到<code>_instance</code>为TopLevelWrapper，其<code>_renderedComponent</code>中的<code>_instance</code>为<code>App</code>，类型为<code>ReactCompositeComponentWrapper</code>，是一个组合组件的类型。</p>
+<p><img src="App.PNG" alt="App"><br>此时，<code>_instance</code>为<code>App</code>，其<code>_renderedComponent</code>已经为<code>Hello</code>，也就是上述写的组件名称，其类型同样为组合组件类型<code>ReactCompositeComponentWrapper</code>。再看下<code>Hello</code>的内部。</p>
+<p><img src="App-rendered.PNG" alt="AppRenderd"><br>可以看到，<code>_instance</code>为<code>Hello</code>，同时，<code>_renderedComponent</code>的类型成了<code>ReactDOMComponent</code>，这个就是上述所说的<code>Host Component</code>中的一种。再看看<code>Hello</code>的<code>_renderedComponent</code>内部。</p>
+<p><img src="Hello.PNG" alt="Hello"><br><code>Hello</code>的<code>_renderedComponent</code>和前面几个已经不一样，因为这已经是叶子节点，也就是最终要渲染到浏览器中的东西，是平台相关的元素。因此里面有两个<code>ReactDOMTextComponent</code>，是最终显示到浏览器中<code>Hello</code>和<code>React</code>。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&ensp;&ensp;&ensp;本文简单阐述了<code>React</code>中的组件<code>mount</code>的过程。包括<code>React</code>创建实例过程中，根据不同的组件类型，创建不同的实例，同时在组件中，递归地去<code>mount</code>其子节点。以及在<code>mount</code>的过程中，何时对用户代码中的<code>生命周期hook</code>函数进行调用。</p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/09/02/React：组件mount初探/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

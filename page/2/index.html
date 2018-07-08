@@ -1,0 +1,723 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>page</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      <nav class="navigator"><nav class="navbar navbar-default navbar-fixed-top">
+  <div class="nav-container">
+
+
+  
+  <ul class="nav navbar-nav navbar-left">
+    <li class="navbar-header">
+      <a href="/" class="navbar-brand">Home</a>
+    </li>
+    <li class="dropdown">
+      <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-tags fa-lg"></i>
+      </span></a>
+      <ul class="dropdown-content">
+
+          
+           <li><a href="/categories/笔记/">笔记</a></li><li><a href="/categories/生活/">生活</a></li>
+
+      </ul>
+    </li>
+  </ul>
+  
+  <div id="site_search" class="">
+  <input type="text" id="local-search-input" name="q" placeholder="search" class="form-control"/>
+</div>
+<div id="local-search-result"></div>
+
+
+  <ul class="nav navbar-nav navbar-right">
+    <li class="dropdown">
+      <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+      <i class="fa fa-link fa-lg"></i>
+      </a>
+      <ul class="dropdown-content">
+        
+          <li>
+            <a href="/links.html">
+        友情链接
+      </a>
+    </li>
+     
+          <li>
+            <a href="https://github.com/navono/">
+        Github
+      </a>
+    </li>
+     
+          <li>
+            <a href="/about.html">
+        关于我
+      </a>
+    </li>
+     
+    </ul>
+    </li>
+    <li class="archives"><a href="/archives">
+      <i class="fa fa-archive fa-lg"></i>
+    </a></li>
+  </ul>
+  </div>
+</nav></nav>
+<ul class="posts">
+  
+    
+<div>
+<li class="post-item">
+  
+  
+    <h1 class="index-title">
+        <a href="/2017/07/23/C++11 智能指针 – Part 4 小心创建shared_ptr对象/">
+            C++11 智能指针 – Part 4 小心创建shared_ptr对象
+        </a>
+    </h1>
+  
+
+
+  <div class="excerpt">
+  
+    原文地址
+
+译注： 本翻译只遵循文章要表达的意图，而不会逐句翻译。
+
+
+这个是一系列关于智能指针的文章，谈及的东西都是比较入门的介绍。
+
+在创建shared_ptr对象时应该要注意两点：
+
+不要使用裸指针来创建两个以上的shared_ptr
+  
+  <a href="/2017/07/23/C++11 智能指针 – Part 4 小心创建shared_ptr对象/">
+    阅读全文
+  </a>
+  </div>
+  <div class="index-meta">
+    
+<time datetime="2017-07-23T15:12:11.000Z" itemprop="datePublished">
+  <i class="fa fa-calendar"></i>&nbsp;
+  07-23
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/翻译/">翻译</a>
+
+
+  </div>
+</li>
+</div>
+<hr>
+
+
+
+
+  
+    
+<div>
+<li class="post-item">
+  
+  
+    <h1 class="index-title">
+        <a href="/2017/07/22/C++11 智能指针 – Part 3 shared_ptr vs 指针/">
+            C++11 智能指针 – Part 3 shared_ptr vs 指针
+        </a>
+    </h1>
+  
+
+
+  <div class="excerpt">
+  
+    原文地址
+
+译注： 本翻译只遵循文章要表达的意图，而不会逐句翻译。
+
+
+这个是一系列关于智能指针的文章，谈及的东西都是比较入门的介绍。
+
+我们从以下几个方面对shared_ptr对象和裸指针进行比较。
+缺失 ++，– 和 [] 操作符和裸指
+  
+  <a href="/2017/07/22/C++11 智能指针 – Part 3 shared_ptr vs 指针/">
+    阅读全文
+  </a>
+  </div>
+  <div class="index-meta">
+    
+<time datetime="2017-07-22T19:09:31.000Z" itemprop="datePublished">
+  <i class="fa fa-calendar"></i>&nbsp;
+  07-22
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/翻译/">翻译</a>
+
+
+  </div>
+</li>
+</div>
+<hr>
+
+
+
+
+  
+    
+<div>
+<li class="post-item">
+  
+  
+    <h1 class="index-title">
+        <a href="/2017/07/19/C++11 智能指针 – Part 2 shared_ptr 和自定义Deleter/">
+            C++11 智能指针 – Part 2 shared_ptr 和自定义Deleter
+        </a>
+    </h1>
+  
+
+
+  <div class="excerpt">
+  
+    原文地址
+
+译注： 本翻译只遵循文章要表达的意图，而不会逐句翻译。
+
+
+这个是一系列关于智能指针的文章，谈及的东西都是比较入门的介绍。
+
+上一篇讲述了std::shared_ptr的基本用法。这一篇讲述的是相关的deleter。当std::
+  
+  <a href="/2017/07/19/C++11 智能指针 – Part 2 shared_ptr 和自定义Deleter/">
+    阅读全文
+  </a>
+  </div>
+  <div class="index-meta">
+    
+<time datetime="2017-07-19T20:13:34.000Z" itemprop="datePublished">
+  <i class="fa fa-calendar"></i>&nbsp;
+  07-19
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/翻译/">翻译</a>
+
+
+  </div>
+</li>
+</div>
+<hr>
+
+
+
+
+  
+    
+<div>
+<li class="post-item">
+  
+  
+    <h1 class="index-title">
+        <a href="/2017/07/19/AMD-R5-340X显卡驱动问题/">
+            AMD R5 340X显卡驱动问题
+        </a>
+    </h1>
+  
+
+
+  <div class="excerpt">
+  
+    原因AMD Radeon R5 340X显卡在更新了最新的Redeon驱动后，无法在windows中显示正确的分辨率，最高为1600*1200。显示器为Dell E22110H（老古董了，正常的分辨率应该为1920*1080）
+解决方案在网
+  
+  <a href="/2017/07/19/AMD-R5-340X显卡驱动问题/">
+    阅读全文
+  </a>
+  </div>
+  <div class="index-meta">
+    
+<time datetime="2017-07-19T19:29:47.000Z" itemprop="datePublished">
+  <i class="fa fa-calendar"></i>&nbsp;
+  07-19
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/硬件/">硬件</a>
+
+
+  </div>
+</li>
+</div>
+<hr>
+
+
+
+
+  
+    
+<div>
+<li class="post-item">
+  
+  
+    <h1 class="index-title">
+        <a href="/2017/07/16/C++11 智能指针 – Part 1 shared_ptr 教程和示例代码/">
+            C++11 智能指针 – Part 1 shared_ptr 教程和示例代码
+        </a>
+    </h1>
+  
+
+
+  <div class="excerpt">
+  
+    原文地址
+
+译注： 本翻译只遵循文章要表达的意图，而不会逐句翻译。
+
+
+这个是一系列关于智能指针的文章，谈及的东西都是比较入门的介绍。
+
+什么是std::shared_ptr&lt;&gt;shared_ptr是C++11提供的智能指针的一
+  
+  <a href="/2017/07/16/C++11 智能指针 – Part 1 shared_ptr 教程和示例代码/">
+    阅读全文
+  </a>
+  </div>
+  <div class="index-meta">
+    
+<time datetime="2017-07-16T15:42:26.000Z" itemprop="datePublished">
+  <i class="fa fa-calendar"></i>&nbsp;
+  07-16
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/翻译/">翻译</a>
+
+
+  </div>
+</li>
+</div>
+<hr>
+
+
+
+
+  
+    
+<div>
+<li class="post-item">
+  
+  
+    <h1 class="index-title">
+        <a href="/2017/07/08/JavaScript入门需要了解的概念/">
+            JavaScript入门需要了解的概念
+        </a>
+    </h1>
+  
+
+
+  <div class="excerpt">
+  
+    引言&ensp;&ensp;&ensp;作为一个一直从事C\C++的程序员来说，进入JavaScript的世界就好像从室内泳池一下子到太平洋的感觉。在C++的世界，一切都比较封闭，你只需要一个文本编辑器，一个编译器或者一个IDE就足够了。然
+  
+  <a href="/2017/07/08/JavaScript入门需要了解的概念/">
+    阅读全文
+  </a>
+  </div>
+  <div class="index-meta">
+    
+<time datetime="2017-07-08T18:29:20.000Z" itemprop="datePublished">
+  <i class="fa fa-calendar"></i>&nbsp;
+  07-08
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/JavaScript/">JavaScript</a>
+
+
+  </div>
+</li>
+</div>
+<hr>
+
+
+
+
+  
+    
+<div>
+<li class="post-item">
+  
+  
+    <h1 class="index-title">
+        <a href="/2017/06/25/JavaScript的19个精简语法/">
+            JavaScript的19个精简语法
+        </a>
+    </h1>
+  
+
+
+  <div class="excerpt">
+  
+    三元操作符简短写法Longhand:12345678const x = 20;let big;if (x &gt; 10) &#123;    big = true;&#125; else &#123;    big = false;&#1
+  
+  <a href="/2017/06/25/JavaScript的19个精简语法/">
+    阅读全文
+  </a>
+  </div>
+  <div class="index-meta">
+    
+<time datetime="2017-06-25T18:29:20.000Z" itemprop="datePublished">
+  <i class="fa fa-calendar"></i>&nbsp;
+  06-25
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/JavaScript/">JavaScript</a>
+
+
+  </div>
+</li>
+</div>
+<hr>
+
+
+
+
+  
+    
+<div>
+<li class="post-item">
+  
+  
+    <h1 class="index-title">
+        <a href="/2017/04/16/librdkafka源码分析/">
+            librdkafka源码分析
+        </a>
+    </h1>
+  
+
+
+  <div class="excerpt">
+  
+    介绍librdkafka是Apache Kafka的一个C/C++客户端。里面包含了一个C的客户端和一个封装C的C++客户端。两者总的代码行数超过3万行。算起来也是不小。
+我准备从以下几个方面入手，简单分析下C客户端代码的整体结构与线程模型
+  
+  <a href="/2017/04/16/librdkafka源码分析/">
+    阅读全文
+  </a>
+  </div>
+  <div class="index-meta">
+    
+<time datetime="2017-04-16T18:29:20.000Z" itemprop="datePublished">
+  <i class="fa fa-calendar"></i>&nbsp;
+  04-16
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/源码分析/">源码分析</a>
+
+
+  </div>
+</li>
+</div>
+<hr>
+
+
+
+
+  
+    
+<div>
+<li class="post-item">
+  
+  
+    <h1 class="index-title">
+        <a href="/2017/04/09/防火墙、VPN与MTU/">
+            防火墙、VPN与MTU
+        </a>
+    </h1>
+  
+
+
+  <div class="excerpt">
+  
+    问题因为行业原因，之前理解中的软件都是跑在局域网内，数据的传输至少不会遇上网络方面的原因，除去一些硬件等物理因素。这是常规的用法，测试团队也是基于这样的网络环境进行测试，也包括防火墙。
+编程方面有一句名言：
+
+永远不要假设编程。
+
+我所理解
+  
+  <a href="/2017/04/09/防火墙、VPN与MTU/">
+    阅读全文
+  </a>
+  </div>
+  <div class="index-meta">
+    
+<time datetime="2017-04-09T18:29:20.000Z" itemprop="datePublished">
+  <i class="fa fa-calendar"></i>&nbsp;
+  04-09
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/网络/">网络</a>
+
+
+  </div>
+</li>
+</div>
+<hr>
+
+
+
+
+  
+    
+<div>
+<li class="post-item">
+  
+  
+    <h1 class="index-title">
+        <a href="/2017/03/12/python的ctype与dll的交互2/">
+            python的ctype与dll的交互2
+        </a>
+    </h1>
+  
+
+
+  <div class="excerpt">
+  
+    摘要上一篇文章说了python与dll交互间的数据结构问题。这篇文章说下dll中的回调问题。介绍python的c回调的文章网上有很多，但很多都是无法工作。因此在此记录下整个过程。
+C的回调通常c写的回调都是类似这样的结构：
+1234567s
+  
+  <a href="/2017/03/12/python的ctype与dll的交互2/">
+    阅读全文
+  </a>
+  </div>
+  <div class="index-meta">
+    
+<time datetime="2017-03-12T18:29:20.000Z" itemprop="datePublished">
+  <i class="fa fa-calendar"></i>&nbsp;
+  03-12
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/Python/">Python</a>
+
+
+  </div>
+</li>
+</div>
+<hr>
+
+
+
+
+  
+</ul>
+<ul class="pager">
+    <a class="extend prev" rel="prev" href="/">Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next</a>
+</ul>
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

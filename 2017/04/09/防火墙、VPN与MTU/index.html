@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>防火墙、VPN与MTU</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="防火墙、VPN与MTU"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        防火墙、VPN与MTU
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-04-09T18:29:20.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-04-09
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/网络/">网络</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#问题"><span class="toc-number">1.</span> <span class="toc-text">问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#原因"><span class="toc-number">2.</span> <span class="toc-text">原因</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#解决方案"><span class="toc-number">3.</span> <span class="toc-text">解决方案</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+    <h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><p>因为行业原因，之前理解中的软件都是跑在局域网内，数据的传输至少不会遇上网络方面的原因，除去一些硬件等物理因素。这是常规的用法，测试团队也是基于这样的网络环境进行测试，也包括防火墙。</p>
+<p>编程方面有一句名言：</p>
+<blockquote>
+<p>永远不要假设编程。</p>
+</blockquote>
+<p>我所理解的是，除去我们能够想到的（也就是我们假设的）正常case外，应该尽量地考虑其他case，包括边界case和环境因素。恰恰大部分人（有些时候包括我自己）平常所进行的都是假设编程。</p>
+<p>工程团队的一个现场：一个调控中心（称为C），多个采集站（称为S）。C和S是异地，中间有防火墙，数据通过VPN走公网。<br>当时是10个采集站。报告说有几个站数据一直时好时坏。</p>
+<p>远程登录后，用procexp看了下，有几个站在进行疯狂的重连（用的是TCP协议）。一个链路建立没多久就被关闭，然后又新建一个链路。第一反应是感觉很蹊跷，想到的是会不会超时时间过短？在前面一个链路未完全建立的情况下超时了，导致主动断开又重连。</p>
+<p>但是反过来又说不通，因为其他几个站的数据完好，且用的是同样的超时时间。（正因为上述的假设，没考虑到网络延时因素）后来用wireshark抓包看了下，有些情况下是采集站主动关闭链路，有些时候又不是。其中有个规律是，采集站主动关闭的前一刻，有个超大的数据包从C发往S。而这种情况在数据好的采集站中未发现过。</p>
+<h1 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h1><p>经过后续的询问与调查，发现C与S数据未通的几个站的网络延时相对来说非常高，基本在150ms以上。可以确定是C这端的数据粘连成一个很大的数据包，这个很大的数据通过防火墙后，被防火墙丢弃了，因为数据包大小超过了MTU值。导致S端认为链路出现了状况，进行了主动关闭。<br>关于走VPN导致数据不稳定的情况，网上有很多帖子。情况基本一致。</p>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><p>方法就是调整MTU的值。防火墙的设置基本是固定的，1500。所以能想到的是改变主机的MTU。<br>以下是在Windows平台的操作。<br>首先是找到发包相应的网络适配器名称：<br>netsh interface ipv4 show subinterface</p>
+<p>找到名称后，进行修改：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netsh interface ipv4 <span class="built_in">set</span> subinterface “网络A” mtu = <span class="number">1400</span> store=persistent</span><br></pre></td></tr></table></figure></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>基于很多现实原因，测试环境无法和真实的生产环境一致，以及大部分时候开发人员的假设编程等情况。综合各种情况，在特定的场景中会一些我们无法预料的到情况。反过来看，从各种意外状况，需要反省，不管是测试用例，测试场景还是开发时的思维模式。因为这些都是正反馈，有反馈才能有目的的改善。</p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/04/09/防火墙、VPN与MTU/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

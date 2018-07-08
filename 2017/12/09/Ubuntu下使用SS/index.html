@@ -1,0 +1,216 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>Ubuntu下使用SS</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="Ubuntu下使用SS"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        Ubuntu下使用SS
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-12-09T13:56:57.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-12-09
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/Linux/">Linux</a>·<a href="/tags/ss/">ss</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#环境"><span class="toc-number">1.</span> <span class="toc-text">环境</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#安装、配置、启动ss"><span class="toc-number">2.</span> <span class="toc-text">安装、配置、启动ss</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP代理"><span class="toc-number">2.1.</span> <span class="toc-text">HTTP代理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Chrome参数"><span class="toc-number">2.1.1.</span> <span class="toc-text">Chrome参数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SwitchOmega"><span class="toc-number">2.2.</span> <span class="toc-text">SwitchOmega</span></a></li></ol></li></ol>
+    <h1 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h1><p>Ubuntu 16.04，连接到互联网。</p>
+<h1 id="安装、配置、启动ss"><a href="#安装、配置、启动ss" class="headerlink" title="安装、配置、启动ss"></a>安装、配置、启动ss</h1><p>安装命令：</p>
+<blockquote>
+<p>sudo apt-get install python-pip<br>pip install shadowsocks</p>
+</blockquote>
+<p>运行<code>sslocal</code>时需要指定几个参数：</p>
+<blockquote>
+<p>“server”: “服务器的ip”,<br>“server_port”: 服务器的端口,<br>“local_port”: “127.0.0.1”,<br>“password”: 1080<br>“timeout”: 500,<br>“method”: “aes-256-cfb”</p>
+</blockquote>
+<p>上述参数可以在命令行中指定，也可使用配置文件，然后用指定配置文件启动<code>sslocal</code></p>
+<blockquote>
+<p>sslocal -c /home/test/shadowsocks.json</p>
+</blockquote>
+<p>每次输入太麻烦，可以写个脚本：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#! /bin/bash</span></span><br><span class="line"><span class="comment">#shadow.sh</span></span><br><span class="line">sslocal -c /home/<span class="built_in">test</span>/shadowsocks.json</span><br></pre></td></tr></table></figure>
+<p>不管在终端中输入还是运行脚本，整个终端会被占据，所以可能需要后台运行：</p>
+<blockquote>
+<p>nohup sh /home/usr/shadow.sh &gt; /home/usr/log.out 2&gt;&amp;1 &amp;</p>
+</blockquote>
+<p>但是我们不想每次都手动去输入上面的命令，解决的办法就是加入开机运行，将上述命令加到<code>rc.local</code>文件。编辑<code>rc.local</code>文件，在<code>exit</code>前输入上述命令。然后<code>reboot</code>。</p>
+<p>上述设置后，一切运行正常，但是想通过<code>chrome</code>上外网，发现还是不行。有两个方法可以让<code>chrome</code>上外网，第一个是<code>HTTP</code>代理，第二个是<code>SwitchOmega</code>。</p>
+<h2 id="HTTP代理"><a href="#HTTP代理" class="headerlink" title="HTTP代理"></a>HTTP代理</h2><p>安装<code>polipo</code>进行<code>HTTP</code>代理：</p>
+<blockquote>
+<p>sudo apt-get install polipo</p>
+</blockquote>
+<p>修改<code>polipo</code>配置文件(/etc/polipo/config)如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># This file only needs to list configuration variables that deviate</span></span><br><span class="line"><span class="comment"># from the default values. See /usr/share/doc/polipo/examples/config.sample</span></span><br><span class="line"><span class="comment"># and "polipo -v" for variables you can tweak and further information.</span></span><br><span class="line">logSyslog = <span class="literal">false</span></span><br><span class="line">logFile = <span class="string">"/var/log/polipo/polipo.log"</span></span><br><span class="line"></span><br><span class="line">socksParentProxy = <span class="string">"127.0.0.1:1080"</span></span><br><span class="line">socksProxyType = socks5</span><br><span class="line"></span><br><span class="line">chunkHighMark = 50331648</span><br><span class="line">objectHighMark = 16384</span><br><span class="line"></span><br><span class="line">serverMaxSlots = 64</span><br><span class="line">serverSlots = 16</span><br><span class="line">serverSlots1 = 32</span><br><span class="line"></span><br><span class="line">proxyAddress = <span class="string">"0.0.0.0"</span></span><br><span class="line">proxyPort = 8123</span><br></pre></td></tr></table></figure>
+<p>重启<code>polipo</code>:</p>
+<blockquote>
+<p>/etc/init.d/polipo restart</p>
+</blockquote>
+<p>此时可一检测下代理是否正常运行：</p>
+<blockquote>
+<p>export http_proxy=”<a href="http://127.0.0.1:8123/&quot;" target="_blank" rel="noopener">http://127.0.0.1:8123/&quot;</a><br>curl <a href="http://www.google.com" target="_blank" rel="noopener">www.google.com</a></p>
+</blockquote>
+<p>如果一切正常，终端会显示抓取到的<code>Google</code>网页的内容。</p>
+<h3 id="Chrome参数"><a href="#Chrome参数" class="headerlink" title="Chrome参数"></a>Chrome参数</h3><p>上述一切正常运行，从左侧启动<code>Chrome</code>，依旧无法上外网。上面能正常抓取<code>Google</code>网页是因为在那个<code>Terminal</code>中加入了<code>http_proxy</code>变量。所以也要把类似<code>http_proxy</code>的代理加入到启动<code>Chrome</code>参数中。<code>Luancher</code>中的启动项可以在<code>usr/share/applications</code>下找到。编辑此目录下的<code>google-chrome.desktop</code>文件，找到<code>Exec</code>命令行，在末尾加入<code>http</code>代理服务器配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Exec=/usr/bin/google-chrome-stable --incognito --proxy-server=<span class="string">"http://127.0.0.1:8123"</span></span><br></pre></td></tr></table></figure>
+<p>从<code>Luancher</code>的<code>Chrome</code>图标中，有三处可以启动，因此需要找到另外两个<code>Exec</code>命令行，加入：</p>
+<blockquote>
+<p>–proxy-server=”<a href="http://127.0.0.1:8123&quot;" target="_blank" rel="noopener">http://127.0.0.1:8123&quot;</a></p>
+</blockquote>
+<h2 id="SwitchOmega"><a href="#SwitchOmega" class="headerlink" title="SwitchOmega"></a>SwitchOmega</h2><p>可以从<a href="https://github.com/FelisCatus/SwitchyOmega/releases" target="_blank" rel="noopener">Github</a>上下载最新的<code>chrome</code>版。在<code>Chrome</code>地址栏输入<code>chrome://extensions</code>打开扩展程序，拖动 .crx 后缀的<code>SwitchyOmega</code>安装文件到扩展程序中进行安装。</p>
+<p>安装成功后，增加一个类型为<code>Proxy Profile</code>的配置文件，或者直接在原有的修改：</p>
+<ul>
+<li>Protocol: SOCKS5</li>
+<li>Server: 127.0.0.1</li>
+<li>Port: 1080</li>
+</ul>
+<p>然后点击<code>Apply Changes</code>。</p>
+<p>同时也可以增加一个<code>Switch Profile</code>的配置文件，这个可以自动根据一个域名的列表清单自动选择是否需要代理。配置文件进行如下修改：</p>
+<ul>
+<li>Switch rules的 Rule list rules的Profile列选择上述的proxy配置文件名</li>
+<li>Rule List URL: <a href="https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt，点击下载" target="_blank" rel="noopener">https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt，点击下载</a></li>
+</ul>
+<p>然后点击<code>Apply Changes</code>。</p>
+<p>这是就可以在扩展图标中选择<code>SwitchOmega</code>，然后选择自动切换选项。 </p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/12/09/Ubuntu下使用SS/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

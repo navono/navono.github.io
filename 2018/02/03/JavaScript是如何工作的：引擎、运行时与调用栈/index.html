@@ -1,0 +1,184 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>JavaScript是如何工作的：引擎、运行时与调用栈</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="JavaScript是如何工作的：引擎、运行时与调用栈"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        JavaScript是如何工作的：引擎、运行时与调用栈
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2018-02-03T11:08:53.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2018-02-03
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/JavaScript/">JavaScript</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#综述"><span class="toc-number">1.</span> <span class="toc-text">综述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#JavaScript引擎"><span class="toc-number">2.</span> <span class="toc-text">JavaScript引擎</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#运行时"><span class="toc-number">3.</span> <span class="toc-text">运行时</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#调用栈"><span class="toc-number">4.</span> <span class="toc-text">调用栈</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#异常"><span class="toc-number">4.1.</span> <span class="toc-text">异常</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#递归调用"><span class="toc-number">4.2.</span> <span class="toc-text">递归调用</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#并发与事件循环"><span class="toc-number">5.</span> <span class="toc-text">并发与事件循环</span></a></li></ol>
+    <h1 id="综述"><a href="#综述" class="headerlink" title="综述"></a>综述</h1><p>随着<code>Nodejs</code>的出现，<code>JavaScript</code>就变得无处不在。前端、后端、混合App、嵌入式设备等。在<code>Github</code>上，<code>JavaScript</code>标签的项目也是逐年增长，伴随着<code>ES2015</code>标准的发布，<code>JavaScript</code>也变得<code>现代</code>起来。作为一名开发者，不仅要知道<code>JavaScript</code>的基础语法，同时也由必要了解<code>JavaScript</code>是如何运行的，这里面都牵扯到哪些东西。知道其背后的运行原理，有利于深刻了解我们平常写的代码，同时更好地利用现有的<code>API</code>。</p>
+<h1 id="JavaScript引擎"><a href="#JavaScript引擎" class="headerlink" title="JavaScript引擎"></a>JavaScript引擎</h1><p>目前最受欢迎的就是Google的<code>V8</code>引擎了。<code>V8</code>被用在了<code>Google Chrome</code>和<code>Node.js</code>中。下面的图形简单展示了<code>JavaScript</code>引擎的基本工作：<br><img src="js-engine.PNG" alt="Engine"></p>
+<p>引擎主要负责两部分：</p>
+<ul>
+<li>内存管理：也就是内存的分配与释放</li>
+<li>调用栈管理：也就是执行代码时的栈帧管理</li>
+</ul>
+<h1 id="运行时"><a href="#运行时" class="headerlink" title="运行时"></a>运行时</h1><p>在日常开发中，我们还会一些其他的<code>API</code>，比如<code>setTimeout</code>，这些<code>API</code>都是执行在浏览器环境中，这些<code>API</code>自然不是<code>JavaScript引擎</code>提供的。这些都称之为<code>Web API</code>，是由浏览器提供的，除了<code>setTimeout</code>，还有操作<code>DOM</code>的，<code>AJAX</code>等。除去这些还有用来相应<code>DOM</code>事件的<code>事件循环</code>和<code>回调队列</code>。<br><img src="browser.PNG" alt="browser"></p>
+<h1 id="调用栈"><a href="#调用栈" class="headerlink" title="调用栈"></a>调用栈</h1><p><code>JavaScript</code>的执行是单线程的，这意味这它只有一个调用栈。<code>调用栈</code>说白了就是数据结构，用来记录当前代码执行的一些信息。比如说下面的代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">multiply</span>(<span class="params">x, y</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x * y;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">printSquare</span>(<span class="params">x</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> s = multiply(x, x);</span><br><span class="line">    <span class="built_in">console</span>.log(s);</span><br><span class="line">&#125;</span><br><span class="line">printSquare(<span class="number">5</span>);</span><br></pre></td></tr></table></figure></p>
+<p>当上述的代码开始执行时，<code>调用栈</code>是空的。之后开始调用<code>printSquare</code>，接着<code>multiply</code>，接着<code>console</code>，然后开始出栈。形象化表示是这样的：<br><img src="stack.PNG" alt="CallStack"></p>
+<p>调用栈中的每个条目称之为<code>栈帧（Stack Frame）</code></p>
+<p>这里包含了两个情况：</p>
+<ul>
+<li>异常</li>
+<li>递归调用</li>
+</ul>
+<h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'SessionStack will help you resolve crashes :)'</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    foo();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">start</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    bar();</span><br><span class="line">&#125;</span><br><span class="line">start();</span><br></pre></td></tr></table></figure>
+<p>如果上述代码运行在<code>Chrome</code>中的话，我们可以在<code>Chrome Del Tools</code>的<code>Console</code>面板中发现会输出一行错误：<br><img src="exception.png" alt="exception"></p>
+<p>上面的错误直接反映了调用栈的结构。</p>
+<h2 id="递归调用"><a href="#递归调用" class="headerlink" title="递归调用"></a>递归调用</h2><p>递归调用直接导致的后果就是栈溢出，也就是超过了最大栈大小。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    foo();</span><br><span class="line">&#125;</span><br><span class="line">foo();</span><br></pre></td></tr></table></figure></p>
+<p>上述代码如果在<code>Chrome</code>中，会发现进程会卡死一段时间，然后在<code>Chrome Del Tools</code>的<code>Console</code>面板中出现错误:<br><img src="stackError.png" alt="stack"></p>
+<p>调用栈形象化表示是这样的：<br><img src="stackOver.png" alt="stack"></p>
+<h1 id="并发与事件循环"><a href="#并发与事件循环" class="headerlink" title="并发与事件循环"></a>并发与事件循环</h1><p>因为<code>JavaScript</code>是单线程，所以如果要执行一个耗时的操作，比如复杂的图片转换，就会导致页面出现卡顿现象。此时就无法相应界面的任何操作，导致了非常不好的用户体验。甚至有时会出现以下的提示：<br><img src="stuck.jpeg" alt="stuck"></p>
+<p>解决这个问题的办法就是使用<code>异步回调（asynchronous callbacks）</code>。</p>
+<p>这个将在下一篇详细解释。</p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2018/02/03/JavaScript是如何工作的：引擎、运行时与调用栈/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

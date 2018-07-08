@@ -1,0 +1,194 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>C++11 智能指针 – Part 1 shared_ptr 教程和示例代码</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="C++11 智能指针 – Part 1 shared_ptr 教程和示例代码"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        C++11 智能指针 – Part 1 shared_ptr 教程和示例代码
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-07-16T15:42:26.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-07-16
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/翻译/">翻译</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#什么是std-shared-ptr-lt-gt"><span class="toc-number">1.</span> <span class="toc-text">什么是std::shared_ptr&lt;&gt;</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#shared-ptr和共享所有权"><span class="toc-number">2.</span> <span class="toc-text">shared_ptr和共享所有权</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#创建一个shared-ptr对象"><span class="toc-number">3.</span> <span class="toc-text">创建一个shared_ptr对象</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#方法1：使用构造"><span class="toc-number">3.1.</span> <span class="toc-text">方法1：使用构造</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法2：使用std-make-shared"><span class="toc-number">3.2.</span> <span class="toc-text">方法2：使用std::make_shared</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从裸指针分离"><span class="toc-number">3.3.</span> <span class="toc-text">从裸指针分离</span></a></li></ol></li></ol>
+    <p><a href="http://thispointer.com/learning-shared_ptr-part-1-usage-details/" target="_blank" rel="noopener">原文地址</a></p>
+<blockquote>
+<p>译注： 本翻译只遵循文章要表达的意图，而不会逐句翻译。</p>
+</blockquote>
+<blockquote>
+<p>这个是一系列关于智能指针的文章，谈及的东西都是比较入门的介绍。</p>
+</blockquote>
+<h1 id="什么是std-shared-ptr-lt-gt"><a href="#什么是std-shared-ptr-lt-gt" class="headerlink" title="什么是std::shared_ptr&lt;&gt;"></a>什么是std::shared_ptr&lt;&gt;</h1><p><code>shared_ptr</code>是<code>C++11</code>提供的智能指针的一种。用来在离开作用域的时候，自动删除相关联指针的技术。因此它可以帮助我们处理一些因为疏忽大意而导致的内存泄漏和指针悬挂问题。</p>
+<h1 id="shared-ptr和共享所有权"><a href="#shared-ptr和共享所有权" class="headerlink" title="shared_ptr和共享所有权"></a>shared_ptr和共享所有权</h1><p>谈及<code>shared_ptr</code>就不得不谈及资源所有权的问题。不同的<code>shared_ptr</code>可以关联到t相同的资源指针，内部使用引用计数来进行管理。</p>
+<p><strong>每个<code>shared_ptr</code>对象内部都指向两个内存地址：</strong></p>
+<ul>
+<li>指向资源对象</li>
+<li>指向用于引用计数的数据结构</li>
+</ul>
+<p><strong>共享所有权是如何通过引用计数来实现的？</strong></p>
+<ul>
+<li>当一个新的<code>shared_ptr</code>对象和一个裸指针关联时，在构造函数内会对此裸指针关联的引用计数加1</li>
+<li>当<code>shared_ptr</code>超出作用域时，在其析构函数内，会对其关联的引用计数减1。如果引用计数变为0,也就意味着没有其他的<code>shared_ptr</code>对象和裸指针所指向的内存相关联了，那么就是使用“delete”函数来释放内存空间。</li>
+</ul>
+<h1 id="创建一个shared-ptr对象"><a href="#创建一个shared-ptr对象" class="headerlink" title="创建一个shared_ptr对象"></a>创建一个<code>shared_ptr</code>对象</h1><h2 id="方法1：使用构造"><a href="#方法1：使用构造" class="headerlink" title="方法1：使用构造"></a>方法1：使用构造</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;<span class="keyword">int</span>&gt; p1(<span class="keyword">new</span> <span class="keyword">int</span>());</span><br></pre></td></tr></table></figure>
+<p>上述代码在堆上分配了两块内存：</p>
+<ol>
+<li>对象int</li>
+<li>管理<code>shared_ptr</code>对象的引用计数的内存。初始值为1.</li>
+</ol>
+<p><strong>检查一个<code>shared_ptr</code>对象的引用计数：</strong><br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p1.use_count();</span><br></pre></td></tr></table></figure></p>
+<h2 id="方法2：使用std-make-shared"><a href="#方法2：使用std-make-shared" class="headerlink" title="方法2：使用std::make_shared"></a>方法2：使用std::make_shared<t></t></h2><p>不能直接将指针赋值给一个<code>shared_ptr</code>对象<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Compile Error</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;<span class="keyword">int</span>&gt; p1 = <span class="keyword">new</span> <span class="keyword">int</span>(); <span class="comment">// Compile error</span></span><br></pre></td></tr></table></figure></p>
+<p>因为<code>shared_ptr</code>的构造函数式显示接收一个参数,想方法1一样。创建<code>shared_ptr</code>对象最好的方式是通过<code>std::make_shared</code>。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;<span class="keyword">int</span>&gt; p1 = <span class="built_in">std</span>::make_shared&lt;<span class="keyword">int</span>&gt;();</span><br></pre></td></tr></table></figure></p>
+<p>好处是<code>std::make_ptr</code>只会分配一个内存块,也就是 new operator只会调用一次。</p>
+<h2 id="从裸指针分离"><a href="#从裸指针分离" class="headerlink" title="从裸指针分离"></a>从裸指针分离</h2><p>使用<code>reset()</code>函数会使<code>shared_ptr</code>对象的引用计数减1。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p1.reset();</span><br></pre></td></tr></table></figure></p>
+<p><code>reset()</code>还有一种用法，就是指向一个新的指针，内部的引用计数会被重置为1。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p1.reset(<span class="keyword">new</span> <span class="keyword">int</span>(<span class="number">34</span>));</span><br></pre></td></tr></table></figure></p>
+<p>从裸指针分离的第二个方法是直接赋值为<code>nullptr</code>。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p1 = <span class="literal">nullptr</span>;</span><br></pre></td></tr></table></figure></p>
+<p><strong><code>shared_ptr</code>是一个<em>伪</em>指针（psuedo pointer）</strong><br><code>shared_ptr</code>会假装成一个正常的指针。比如我们可用 <code>*</code>和<code>-&gt;</code>来操作<code>shared_ptr</code>对象。</p>
+<p>完整的示例如下：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span>  <span class="meta-string">&lt;memory&gt; // shared_ptr的t头文件</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// 通过`make_shared`创建一个`shared_ptr`对象</span></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;<span class="keyword">int</span>&gt; p1 = <span class="built_in">std</span>::make_shared&lt;<span class="keyword">int</span>&gt;();</span><br><span class="line">	*p1 = <span class="number">78</span>;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"p1 = "</span> &lt;&lt; *p1 &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"> </span><br><span class="line">  <span class="comment">// 打印引用计数</span></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"p1 Reference count = "</span> &lt;&lt; p1.use_count() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"> </span><br><span class="line">  <span class="comment">// 第二个`shared_ptr`对象内部会指向同一个指针，因此引用计数会变成2</span></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;<span class="keyword">int</span>&gt; p2(p1);</span><br><span class="line"> </span><br><span class="line">  <span class="comment">// 打印引用计数</span></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"p2 Reference count = "</span> &lt;&lt; p2.use_count() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"p1 Reference count = "</span> &lt;&lt; p1.use_count() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"> </span><br><span class="line">  <span class="comment">// `shared_ptr`对象比较</span></span><br><span class="line">	<span class="keyword">if</span> (p1 == p2)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"p1 and p2 are pointing to same pointer\n"</span>;</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Reset p1 "</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"> </span><br><span class="line">	p1.reset();</span><br><span class="line"> </span><br><span class="line">  <span class="comment">// 重置 `shared_ptr`对象，此对象内部不再指向裸指针，因此引用计数会变成0</span></span><br><span class="line"></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"p1 Reference Count = "</span> &lt;&lt; p1.use_count() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"> </span><br><span class="line">  <span class="comment">// 重置 `shared_ptr`对象，此对象内部指向一个新的裸指针，因此引用计数会变成1</span></span><br><span class="line"> </span><br><span class="line">	p1.reset(<span class="keyword">new</span> <span class="keyword">int</span>(<span class="number">11</span>));</span><br><span class="line"> </span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"p1  Reference Count = "</span> &lt;&lt; p1.use_count() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"> </span><br><span class="line">  <span class="comment">// 使用nullptr进行赋值</span></span><br><span class="line">	p1 = <span class="literal">nullptr</span>;</span><br><span class="line"> </span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"p1  Reference Count = "</span> &lt;&lt; p1.use_count() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">if</span> (!p1)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"p1 is NULL"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">p1 = <span class="number">78</span></span><br><span class="line">p1 Reference count = <span class="number">1</span></span><br><span class="line">p2 Reference count = <span class="number">2</span></span><br><span class="line">p1 Reference count = <span class="number">2</span></span><br><span class="line">p1 <span class="keyword">and</span> p2 are pointing to same pointer</span><br><span class="line">Reset p1 </span><br><span class="line">p1 Reference Count = <span class="number">0</span></span><br><span class="line">p1  Reference Count = <span class="number">1</span></span><br><span class="line">p1  Reference Count = <span class="number">0</span></span><br><span class="line">p1 is <span class="literal">NULL</span></span><br></pre></td></tr></table></figure></p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/07/16/C++11 智能指针 – Part 1 shared_ptr 教程和示例代码/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

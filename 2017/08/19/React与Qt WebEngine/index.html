@@ -1,0 +1,178 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>React与Qt WebEngine</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="React与Qt WebEngine"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        React与Qt WebEngine
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-08-19T13:29:20.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-08-19
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/JavaScript/">JavaScript</a>·<a href="/tags/React/">React</a>·<a href="/tags/Qt/">Qt</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#背景介绍"><span class="toc-number">1.</span> <span class="toc-text">背景介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#React组件如何适配Qt-WebEngine"><span class="toc-number">2.</span> <span class="toc-text">React组件如何适配Qt WebEngine</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#模块风格"><span class="toc-number">2.1.</span> <span class="toc-text">模块风格</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#导出类"><span class="toc-number">2.2.</span> <span class="toc-text">导出类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CSS"><span class="toc-number">2.3.</span> <span class="toc-text">CSS</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+    <h1 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h1><p>&ensp;&ensp;&ensp;因为一些竞争对手以及技术圈大趋势的原因，我们想要尝试着把未来的产品往前端和移动端发展。但是同时因为长期以来，顾客和大部分工程人员都已经熟悉桌面端的应用。所以考虑到这部分人的顾虑，我们没有采取极端的全B/S的形式，但是同时又不能放弃这种可能性。最后就折衷，采取了<code>桌面端使用Qt，同时Qt中使用HTML，未来如果全部迁移到Web或者移动端，那么之前的HTML也可以重用。</code>这样的非主流技术栈。</p>
+<h1 id="React组件如何适配Qt-WebEngine"><a href="#React组件如何适配Qt-WebEngine" class="headerlink" title="React组件如何适配Qt WebEngine"></a>React组件如何适配Qt WebEngine</h1><p>&ensp;&ensp;&ensp;之前做的React组件一直是在Chrome上测试，并且当时以为最后等同事那边的Qt做好以及后台的数据接口改造完后，就直接可以将React组件集成到Qt程序中。</p>
+<p>&ensp;&ensp;&ensp;集成的过程中需要关注以下几点：</p>
+<ul>
+<li>JavaScript的模块风格</li>
+<li>React的组件如何导出类给Qt WebEngine使用</li>
+<li>React组件中的CSS</li>
+</ul>
+<h2 id="模块风格"><a href="#模块风格" class="headerlink" title="模块风格"></a>模块风格</h2><p>&ensp;&ensp;&ensp;这个问题很好解决，因为React组件都是使用Webpack打包，只要在output加一句：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">libraryTarget: <span class="string">"amd"</span></span><br></pre></td></tr></table></figure></p>
+<p>打包后的bundle文件可以直接在Qt 的对接的文件中使用。</p>
+<h2 id="导出类"><a href="#导出类" class="headerlink" title="导出类"></a>导出类</h2><p>&ensp;&ensp;&ensp;通常如果React组件是直接给HTML用，同时HTML也是用模板。那么唯一需要注意的是，React组件放在哪？所以通常情况下会在HTML中加入<code>div</code>节点，同时加上ID，之后在js文件中将React组件加载到这个指定ID的位置。假设有一个名叫<code>CustomeCalendar</code>的组件：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ReactDOM.render(</span><br><span class="line">  &lt;CustomeCalendar&gt;,</span><br><span class="line">  <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure></p>
+<p>如果现在是将导出的bundle文件给Qt用，显然不能直接这样进行<code>render</code>。唯一的办法是导出一个类给Qt的接口js使用。第一次想到的是这么写：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CustomCalendar</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(props, context) &#123;</span><br><span class="line">    <span class="keyword">super</span>(props. context)</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  render()&#123;</span><br><span class="line">    <span class="keyword">return</span> ReactDOM.render(</span><br><span class="line">      ...,</span><br><span class="line">      <span class="built_in">document</span>.getElementById(<span class="keyword">this</span>.props.id)</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> CustomeCalendar;</span><br></pre></td></tr></table></figure></p>
+<p>假设上述React组件的bundle文件就叫<code>bundle.js</code>。在Qt中的接口js中就这么使用：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>([<span class="string">'bundle'</span>], <span class="function"><span class="keyword">function</span> (<span class="params">customCalendar</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> cc = <span class="keyword">new</span> customCalendar(<span class="string">'root'</span>);</span><br><span class="line">  cc.render();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>在Qt端，运行起来后，控件也显示了。但是稍后就会发现。React库实际上并没有mount这个组件。因为如果<code>CustomCalendar</code>组件接收来自外界的数据后，使用<code>this.setState()</code>，就会出错。出错的提示类似是这样的：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setState(...): Can only update a mounted or mounting component. This usually means you called setState() on an unmounted component. This is a no-op. Please check the code <span class="keyword">for</span> the <span class="literal">undefined</span> component.</span><br></pre></td></tr></table></figure></p>
+<p>&ensp;&ensp;&ensp;这个问题困扰了我1天时间。直到我大概把React组件的mount的过程弄清楚。以上错误输出来源于<code>ReactNoopUpdateQueue</code>，React中还有两类<code>UpdateQueue</code>，<code>ReactUpdateQueue</code>和<code>ReactServerUpdateQueue</code>。正常的组件的<code>UpdateQueue</code>想想也应该是<code>ReactUpdateQueue</code>。而此处出现的<code>ReactNoopUpdateQueue</code>是因为<code>CustomeCalendar</code>根本没有被<code>mount</code>。如果<code>CustomeCalendar</code>没有被<code>mount</code>，那么错误信息是谁输出的？答案是<code>TopLevelWrapper</code>。React加载任何一个组件前都会创建这个顶层的<code>TopLevelWrapper</code>。</p>
+<p>再具体的原因在此不表。可以参考这两篇文章：<a href="https://bogdan-lyashenko.github.io/Under-the-hood-ReactJS/" target="_blank" rel="noopener">Under-the-hood-ReactJS</a> 和 <a href="http://www.mattgreer.org/articles/react-internals-part-one-basic-rendering/" target="_blank" rel="noopener">React Internals</a>。</p>
+<p>&ensp;&ensp;&ensp;正确的做法是不要直接导出React组件类，而是普通类，之后由Qt的接口js文件创建这个类的实例，最后调用这个实例的渲染方法，在这个方法里进行<code>ReactDOM.render</code>。</p>
+<h2 id="CSS"><a href="#CSS" class="headerlink" title="CSS"></a>CSS</h2><p>&ensp;&ensp;&ensp;在集成的过程当中出现了在Chrome中显示正确的控件，而在Qt的WebEngine中确显示异常。根本原因尚未弄清，但是直接原因就是css文件在Qt的WebEngine中的解析和Chrome中的不一样。这只能是在Qt端手动去调整了。没有找到更好的办法。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&ensp;&ensp;&ensp;JavaScript控件开发还在继续（比如准备用百度的echarts来做一些数据的展示），集成也在继续。相信之后也还会再遇到一些<code>奇怪</code>的问题。但是不管怎样，有代码的前提下，掌握调试工具是解决问题的基础。通过调试去了解库或控件，问题才能被清晰定位。反过来因为了解了库或控件的内部机制，这样也能更好地使用它，从而避免一些问题。</p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/08/19/React与Qt WebEngine/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

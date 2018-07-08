@@ -1,0 +1,214 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>librdkafka源码分析</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="librdkafka源码分析"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        librdkafka源码分析
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-04-16T18:29:20.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-04-16
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/源码分析/">源码分析</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#介绍"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#线程模型"><span class="toc-number">2.</span> <span class="toc-text">线程模型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#主处理线程"><span class="toc-number">2.1.</span> <span class="toc-text">主处理线程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Broker线程"><span class="toc-number">2.2.</span> <span class="toc-text">Broker线程</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#队列"><span class="toc-number">3.</span> <span class="toc-text">队列</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Consumer执行流"><span class="toc-number">4.</span> <span class="toc-text">Consumer执行流</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+    <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p><a href="https://github.com/edenhill/librdkafka" target="_blank" rel="noopener">librdkafka</a>是Apache Kafka的一个C/C++客户端。里面包含了一个C的客户端和一个封装C的C++客户端。两者总的代码行数超过3万行。算起来也是不小。</p>
+<p>我准备从以下几个方面入手，简单分析下C客户端代码的整体结构与线程模型。</p>
+<ul>
+<li>线程模型</li>
+<li>几种重要的队列（queue）</li>
+<li>主要分析Consumer的执行流</li>
+</ul>
+<p>未涉及的包括：</p>
+<ul>
+<li>Producer的执行流</li>
+<li>数据交互的格式以及打包与解包</li>
+<li>Client group</li>
+</ul>
+<p>大部分代码都是以C编写的，从我阅读后来看，整体的代码编写风格很随意，没有固定的代码风格。这可能也会在阅读过程中增加一点难度，第二是C风格的代码免不了宏，因此在分析的时候需要逐一分析，这样代码的上下文很容易丢失。</p>
+<p>阅读的代码为windows平台。</p>
+<h1 id="线程模型"><a href="#线程模型" class="headerlink" title="线程模型"></a>线程模型</h1><p>有以下几个线程：</p>
+<h2 id="主处理线程"><a href="#主处理线程" class="headerlink" title="主处理线程"></a>主处理线程</h2><p>当调用<code>rd_kafka_new</code>时，会传入创建<code>rd_kafka_t</code>对象的类型，也就是<code>RD_KAFKA_CONSUMER</code>或者<code>RD_KAFKA_PRODUCER</code>。之后会调用<code>rd_kafka_cgrp_new</code>创建<code>rd_kafka_cgrp_t</code>对象，接着就是创建主处理线程，线程的入口为<code>rd_kafka_thread_main</code>。</p>
+<p><code>rd_kafka_thread_main</code>中会从<code>rd_kafka_t</code>对象中的操作队列<code>rk_ops</code>中逐一取出进行操作。操作的数据结构类型为<code>rd_kafka_op_t</code>。操作类型有很多种，参考<code>rd_kafka_op_type_t</code>。操作执行完后调用<code>rd_kafka_op_handle</code>回调。</p>
+<p>这是<code>rd_kafka_thread_main</code>线程的主要工作，其中有一些细节这里未涉及。</p>
+<h2 id="Broker线程"><a href="#Broker线程" class="headerlink" title="Broker线程"></a>Broker线程</h2><p>上述<code>rd_kafka_thread_main</code>线程创建完后，调用<code>rd_kafka_broker_add</code>创建internal broker线程。broker线程的类型有三种，分别是：</p>
+<ul>
+<li><p>RD_KAFKA_CONFIGURED</p>
+<p>根据用户配置，生成的broker线程</p>
+</li>
+<li><p>RD_KAFKA_LEARNED</p>
+<p>内部使用的broker线程，主要针对Client Group使用</p>
+</li>
+<li><p>RD_KAFKA_INTERNAL</p>
+<p>内部使用的broker线程</p>
+</li>
+</ul>
+<p>Broker线程主要执行的是针对Broker的当前内部状态，比如INIT、DOWN、CONNECT、UP等，在这些状态下，执行针对的操作。比如在<code>RD_KAFKA_BROKER_STATE_UP</code>状态下，根据<code>rk_type</code>（类型为<code>rd_kafka_type_t</code>）来执行<code>rd_kafka_broker_producer_serve</code>或者<code>rd_kafka_broker_consumer_serve</code>。</p>
+<p>Broker线程可能会有多个。</p>
+<h1 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h1><p>队列在librdkafka的数据流转中起到了关键性的作用。主要有：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">rd_kafka_q_t</span> *rktp_ops;</span><br><span class="line"><span class="keyword">rd_kafka_q_t</span> *rktp_fetchq;</span><br><span class="line"><span class="keyword">rd_kafka_q_t</span> *rkcg_q;</span><br><span class="line"><span class="keyword">rd_kafka_q_t</span> *rk_rep;</span><br><span class="line"><span class="keyword">rd_kafka_q_t</span> *rkcg_q;</span><br></pre></td></tr></table></figure></p>
+<p>buf队列有以下几个：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">rd_kafka_bufq_t</span> rkb_outbufs;</span><br><span class="line"><span class="keyword">rd_kafka_bufq_t</span> rkb_waitresps;</span><br><span class="line"><span class="keyword">rd_kafka_bufq_t</span> rkb_retrybufs;</span><br></pre></td></tr></table></figure></p>
+<p>在创建<code>rd_kafka_cgrp_t</code>对象时，将<code>rkcg_q</code>设置为<code>rk_rep</code>的转发队列（forward queue）<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rd_kafka_q_fwd_set(rk-&gt;rk_rep, rkcg-&gt;rkcg_q);</span><br></pre></td></tr></table></figure></p>
+<p>在线程<code>rd_kafka_broker_thread_main</code>里，调用<code>rd_kafka_toppar_op_fetch_start</code>设置<code>rktp_fetchq</code>的转发queue为<code>rkcg_q</code>。</p>
+<p>在Broker线程中，rd_kafka_fetch_reply_handle会创建一个临时的queue，然后创建一个rko，将rko压入到临时队列的rkq_q对象中。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rd_kafka_q_enq(rkq, rko)</span><br></pre></td></tr></table></figure></p>
+<p>最后将这个临时queue压入到<code>rd_kafka_toppar_s::rktp_fetchq</code>的转发queue中，也就是rkcg_q。</p>
+<p>Broker 线程会调用<code>rd_kafka_broker_consumer_serve</code>，然后到<code>rd_kafka_broker_fetch_toppars</code>构建一个<code>rd_kafka_buf_t *</code>对象，同时将此对象的<code>rkbuf_cb</code>设置为<code>rd_kafka_broker_fetch_reply</code>。然后将buf压入到broker的<code>rkb_outbufs</code>队列中。</p>
+<p>在<code>rd_kafka_send</code>会从<code>rkb_outbufs</code>获取buf发送之后，会将此buf压入到<code>rkb_waitresps</code>队列中。</p>
+<p>收到回应后，会调用<code>rkbuf_cb</code>会被调用<code>rd_kafka_buf_callback</code>的request，就是rkbuf。<code>rkb-&gt;rkb_waitresps</code>的<code>rkbq_bufs</code>中，通过corrid查找相应的<code>rd_kafka_buf_t</code>对象找到后更新状态。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rd_kafka_bufq_deq(&amp;rkb-&gt;rkb_waitresps, rkbuf);</span><br></pre></td></tr></table></figure>
+<h1 id="Consumer执行流"><a href="#Consumer执行流" class="headerlink" title="Consumer执行流"></a>Consumer执行流</h1><p>消费者主动去poll消息</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rd_kafka_consume0(rk, rkcg-&gt;rkcg_q, timeout_ms);</span><br></pre></td></tr></table></figure>
+<p><code>rkcg_q</code>就是<code>rk_rep</code>的转发queue。从<code>rkcg_q</code>取出一个<code>rd_kafka_op_t</code>对象，再从<code>rd_kafka_op_t</code>对象中取得消息（<code>rd_kafka_message_t</code>）。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这个库的代码结构相对来说还是比较复杂的。上面的分析也很粗糙，有很多细节没有说明。但是大方向有了，其他的细节相分析起来，就会游刃有余，而不是毫无头绪。<br>这个库有一点不好的是队列的转发操作，说白了就是互相保存对象地址，然后在其他地方操作，所以不是很直观。在没弄清楚的情况会让人摸不着头脑。<br>一般我自己在阅读源码时，会遵循以下几个步骤：</p>
+<ul>
+<li>有一个可运行的示例</li>
+<li>理解线程模型</li>
+<li>大致阅读相关数据结构</li>
+<li>将示例的执行流串起来</li>
+<li>抓包查看如何通讯</li>
+</ul>
+<p>然后与以往看过的源码进行一个对比。从代码风格，代码格式化，代码的数据结构，API等方面进行比较。</p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/04/16/librdkafka源码分析/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

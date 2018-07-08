@@ -1,0 +1,186 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>C++11 智能指针 – Part 5 shared_ptr与循环引用</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="C++11 智能指针 – Part 5 shared_ptr与循环引用"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        C++11 智能指针 – Part 5 shared_ptr与循环引用
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-07-26T19:04:19.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-07-26
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/翻译/">翻译</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    
+    <p><a href="http://thispointer.com/shared_ptr-binary-trees-and-the-problem-of-cyclic-references/" target="_blank" rel="noopener">原文地址</a></p>
+<blockquote>
+<p>译注： 本翻译只遵循文章要表达的意图，而不会逐句翻译。</p>
+</blockquote>
+<blockquote>
+<p>这个是一系列关于智能指针的文章，谈及的东西都是比较入门的介绍。</p>
+</blockquote>
+<p>使用智能指针的主要优点是能够在合适的时间来释放相关的内存。但是使用不当也会将这个主要优点变成缺点。</p>
+<p>假设我们要实现一个二叉树，用左右两个指针来保存孩子节点。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line">Node</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">int</span> value;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Node&gt; leftPtr;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Node&gt; rightPtr;</span><br><span class="line">    Node(<span class="keyword">int</span> val) : value(val) &#123;</span><br><span class="line">         <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Contructor"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ~Node() &#123;</span><br><span class="line">         <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Destructor"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>然后可以这么使用<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Node&gt; ptr = <span class="built_in">std</span>::make_shared&lt;Node&gt;(<span class="number">4</span>);</span><br><span class="line">    ptr-&gt;leftPtr = <span class="built_in">std</span>::make_shared&lt;Node&gt;(<span class="number">2</span>);</span><br><span class="line">    ptr-&gt;rightPtr = <span class="built_in">std</span>::make_shared&lt;Node&gt;(<span class="number">5</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>运行后在控制台会输出三次构造和三次析构。完全按照我们想要的执行。<br><img src="normal.PNG" alt="正常"></p>
+<p>但是此时如果想要增加一个小需求，也就是每个节点保存父节点。我们可能会想到这样做：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Node</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">int</span> value;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Node&gt; leftPtr;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Node&gt; rightPtr;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Node&gt; parentPtr;</span><br><span class="line">    Node(<span class="keyword">int</span> val) : value(val)     &#123;</span><br><span class="line">         <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Contructor"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ~Node()     &#123;</span><br><span class="line">         <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Destructor"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>然后这样使用：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Node&gt; ptr = <span class="built_in">std</span>::make_shared&lt;Node&gt;(<span class="number">4</span>);</span><br><span class="line">    ptr-&gt;leftPtr = <span class="built_in">std</span>::make_shared&lt;Node&gt;(<span class="number">2</span>);</span><br><span class="line">    ptr-&gt;leftPtr-&gt;parentPtr = ptr;</span><br><span class="line">    ptr-&gt;rightPtr = <span class="built_in">std</span>::make_shared&lt;Node&gt;(<span class="number">5</span>);</span><br><span class="line">    ptr-&gt;rightPtr-&gt;parentPtr = ptr;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"ptr reference count = "</span>&lt;&lt;ptr.use_count()&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"ptr-&gt;leftPtr reference count = "</span>&lt;&lt;ptr-&gt;leftPtr.use_count()&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"ptr-&gt;rightPtr reference count = "</span>&lt;&lt;ptr-&gt;rightPtr.use_count()&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>但是此时在控制台输出中，只看到了三次构造，没有析构。<br><img src="leak.PNG" alt="内存泄漏"></p>
+<p>原因是这里引入了循环依赖。<code>shared_ptr</code>对象释放内存的条件是内部引用计数为0。上述的例子中，<code>ptr</code>对象的内部引用计数不可能为0。分析一下。</p>
+<p>当<code>ptr</code>析构被调用：</p>
+<ul>
+<li>引用计数减1</li>
+<li>检查引用计数的值是否为0，但实际上为2，因为被左右子节点引用了</li>
+<li>左右子节点只有在<code>ptr</code>对象被正确删除后才会被删除，但是此时<code>ptr</code>的引用计数一直大于0，所以不会被删除</li>
+<li>最终，<code>ptr</code>和子节点的内存都没有被删除，因此没有析构被调用</li>
+</ul>
+<p>解决此问题的办法是使用<code>weak_ptr</code>。<code>weak_ptr</code>只能对资源共享，也就是会增加内部的引用计数，但是不会对实际资源进行引用。因此<code>weak_ptr</code>对象不能使用操作符<code>*</code>和<code>-&gt;</code>来访问相关的资源。只能通过调用<code>lock()</code>函数来创建<code>shared_ptr</code>对象来操作。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;<span class="keyword">int</span>&gt; ptr = <span class="built_in">std</span>::make_shared&lt;<span class="keyword">int</span>&gt;(<span class="number">4</span>);</span><br><span class="line">    <span class="built_in">std</span>::weak_ptr&lt;<span class="keyword">int</span>&gt; weakPtr(ptr);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;<span class="keyword">int</span>&gt; ptr_2 =  weakPtr.lock();</span><br><span class="line">    <span class="keyword">if</span>(ptr_2)</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;(*ptr_2)&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Reference Count :: "</span>&lt;&lt;ptr_2.use_count()&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;   </span><br><span class="line">    <span class="keyword">if</span>(weakPtr.expired() == <span class="literal">false</span>)</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Not expired yet"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;   </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出：<br><img src="weak_ptr.PNG" alt="weak_ptr"></p>
+<p>这里有个需要注意的是，<code>lock</code>函数可能返回空的<code>shared_ptr</code>对象。</p>
+<p>将我们的<code>Node</code>的<code>parentPtr</code>类型修改成<code>weak_ptr</code>即可解决循环引用的问题。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Node</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">int</span> value;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Node&gt; leftPtr;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Node&gt; rightPtr;</span><br><span class="line">    <span class="comment">// Just Changed the shared_ptr to weak_ptr</span></span><br><span class="line">    <span class="built_in">std</span>::weak_ptr&lt;Node&gt; parentPtr;</span><br><span class="line">    Node(<span class="keyword">int</span> val) : value(val)     &#123;</span><br><span class="line">         <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Contructor"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ~Node()     &#123;</span><br><span class="line">         <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Destructor"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Node&gt; ptr = <span class="built_in">std</span>::make_shared&lt;Node&gt;(<span class="number">4</span>);</span><br><span class="line">    ptr-&gt;leftPtr = <span class="built_in">std</span>::make_shared&lt;Node&gt;(<span class="number">2</span>);</span><br><span class="line">    ptr-&gt;leftPtr-&gt;parentPtr = ptr;</span><br><span class="line">    ptr-&gt;rightPtr = <span class="built_in">std</span>::make_shared&lt;Node&gt;(<span class="number">5</span>);</span><br><span class="line">    ptr-&gt;rightPtr-&gt;parentPtr = ptr;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"ptr reference count = "</span>&lt;&lt;ptr.use_count()&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"ptr-&gt;leftPtr reference count = "</span>&lt;&lt;ptr-&gt;leftPtr.use_count()&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"ptr-&gt;rightPtr reference count = "</span>&lt;&lt;ptr-&gt;rightPtr.use_count()&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"ptr-&gt;rightPtr-&gt;parentPtr reference count = "</span>&lt;&lt;ptr-&gt;rightPtr-&gt;parentPtr.lock().use_count()&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"ptr-&gt;leftPtr-&gt;parentPtr reference count = "</span>&lt;&lt;ptr-&gt;leftPtr-&gt;parentPtr.lock().use_count()&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出：<br><img src="weak_ptr2.PNG" alt="weak_ptr"></p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/07/26/C++11 智能指针 – Part 5 shared_ptr与循环引用/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

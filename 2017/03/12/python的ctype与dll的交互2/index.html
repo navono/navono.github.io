@@ -1,0 +1,170 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>python的ctype与dll的交互2</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="python的ctype与dll的交互2"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        python的ctype与dll的交互2
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-03-12T18:29:20.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-03-12
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/Python/">Python</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#摘要"><span class="toc-number">1.</span> <span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#C的回调"><span class="toc-number">2.</span> <span class="toc-text">C的回调</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#python的回调"><span class="toc-number">3.</span> <span class="toc-text">python的回调</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#源码"><span class="toc-number">4.</span> <span class="toc-text">源码</span></a></li></ol>
+    <h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><p><a href="http://codingeek.me/2017/01/22/python%E7%9A%84ctype%E4%B8%8Edll%E7%9A%84%E4%BA%A4%E4%BA%92/" target="_blank" rel="noopener">上一篇</a>文章说了python与dll交互间的数据结构问题。这篇文章说下dll中的回调问题。介绍python的c回调的文章网上有很多，但很多都是无法工作。因此在此记录下整个过程。</p>
+<h1 id="C的回调"><a href="#C的回调" class="headerlink" title="C的回调"></a>C的回调</h1><p>通常c写的回调都是类似这样的结构：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">A_s</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="keyword">const</span> <span class="keyword">char</span>* a1;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> a2;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">A_s</span> <span class="title">A_t</span>;</span></span><br><span class="line">TESTDLL_API int function1(void (*outputcallback)(const A_t* a, void* b), void* param);</span><br></pre></td></tr></table></figure>
+<p>在c或者C++中调用的话，第一个参数可以传入一个签名匹配到回调的方法或者lambda对象（Lambda参考<a href="http://codingeek.me/2017/03/04/Callback-in-C-and-C/" target="_blank" rel="noopener">这篇</a>）。</p>
+<h1 id="python的回调"><a href="#python的回调" class="headerlink" title="python的回调"></a>python的回调</h1><p>在python中，需要定义相应的数据结构，接下来就是回调的原型定义。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span><span class="params">(Structure)</span>:</span></span><br><span class="line">    _fields_ = [</span><br><span class="line">        (<span class="string">"a1"</span>, c_char_p),</span><br><span class="line">        (<span class="string">"a2"</span>, c_int)]</span><br><span class="line">CMPFUNC = CFUNCTYPE(<span class="keyword">None</span>, POINTER(A), c_void_p)</span><br></pre></td></tr></table></figure>
+<p>CFUNCTYPE的第一个参数是回调的返回值，接下是回调的参数。有一点需要注意的是，任何传入c接口的参数都是ctypes类型，而不是python的内置内类。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.dllModule.function1(self.cb, c_int(<span class="number">10</span>))</span><br></pre></td></tr></table></figure>
+<p>回调中的第一个参数是一个对象，这个对象包含了一个contents字段，在这个字段中才是我们自定义的字段。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">callback</span><span class="params">(self, a, b)</span>:</span></span><br><span class="line">        print(dir(a))</span><br><span class="line">        print(a.contents.a1, a.contents.a2)</span><br><span class="line">        print(b)</span><br></pre></td></tr></table></figure>
+<h1 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h1><p>源码在<a href="https://github.com/navono/blog_code/tree/master/python-callback" target="_blank" rel="noopener">这里</a></p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/03/12/python的ctype与dll的交互2/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

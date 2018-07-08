@@ -1,0 +1,177 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>C++11 智能指针 – Part 2 shared_ptr 和自定义Deleter</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="C++11 智能指针 – Part 2 shared_ptr 和自定义Deleter"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        C++11 智能指针 – Part 2 shared_ptr 和自定义Deleter
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-07-19T20:13:34.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-07-19
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/翻译/">翻译</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    
+    <p><a href="http://thispointer.com/shared_ptr-and-custom-deletor/" target="_blank" rel="noopener">原文地址</a></p>
+<blockquote>
+<p>译注： 本翻译只遵循文章要表达的意图，而不会逐句翻译。</p>
+</blockquote>
+<blockquote>
+<p>这个是一系列关于智能指针的文章，谈及的东西都是比较入门的介绍。</p>
+</blockquote>
+<p><a href="http://codingwith.me/2017/07/16/C++11%20%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88%20%E2%80%93%20Part%201%20shared_ptr%20%E6%95%99%E7%A8%8B%E5%92%8C%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81/">上一篇</a>讲述了<code>std::shared_ptr</code>的基本用法。这一篇讲述的是相关的deleter。当<code>std::shared</code>对象超出作用域范围时，会自动调用析构函数，当引用计数为0时，会删除相关的裸指针，也就是如何使用自定义的deleter来删除<code>std::shared</code>引用的裸指针对象。</p>
+<p>通常情况下是直接调用delete。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span> pointer;</span><br></pre></td></tr></table></figure></p>
+<p>但是当<br><strong><code>shared_ptr</code>指向的是数组对象时</strong>，情况就不同了。比如：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;<span class="keyword">int</span>&gt; p3(<span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">12</span>]);</span><br></pre></td></tr></table></figure></p>
+<p>此时如果还是使用默认的：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span> p3;</span><br></pre></td></tr></table></figure></p>
+<p>明显会导致内存泄漏，正确的是应该使用：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span> []p3;</span><br></pre></td></tr></table></figure></p>
+<p>上述的deleter是在构造<code></code>std::shared_ptr`对象时，指定的deleter，通常我们可以自定义，比如：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">deleter</span><span class="params">(Sample * x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"DELETER FUNCTION CALLED\n"</span>;</span><br><span class="line">	<span class="keyword">delete</span>[] x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后再传入<code>std::shared_ptr</code>构造函数中：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Sample&gt; p3(<span class="keyword">new</span> Sample[<span class="number">12</span>], deleter);</span><br></pre></td></tr></table></figure></p>
+<p>下面是完整的例子：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Sample</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	Sample()</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"CONSTRUCTOR\n"</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	~Sample()</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"DESTRUCTOR\n"</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"> </span><br><span class="line"><span class="comment">// deleter</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">deleter</span><span class="params">(Sample * x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"DELETER FUNCTION CALLED\n"</span>;</span><br><span class="line">	<span class="keyword">delete</span>[] x;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Sample&gt; p3(<span class="keyword">new</span> Sample[<span class="number">12</span>], deleter);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">CONSTRUCTOR</span><br><span class="line">CONSTRUCTOR</span><br><span class="line">CONSTRUCTOR</span><br><span class="line">CONSTRUCTOR</span><br><span class="line">CONSTRUCTOR</span><br><span class="line">CONSTRUCTOR</span><br><span class="line">CONSTRUCTOR</span><br><span class="line">CONSTRUCTOR</span><br><span class="line">CONSTRUCTOR</span><br><span class="line">CONSTRUCTOR</span><br><span class="line">CONSTRUCTOR</span><br><span class="line">CONSTRUCTOR</span><br><span class="line">DELETER FUNCTION CALLED</span><br><span class="line">DESTRUCTOR</span><br><span class="line">DESTRUCTOR</span><br><span class="line">DESTRUCTOR</span><br><span class="line">DESTRUCTOR</span><br><span class="line">DESTRUCTOR</span><br><span class="line">DESTRUCTOR</span><br><span class="line">DESTRUCTOR</span><br><span class="line">DESTRUCTOR</span><br><span class="line">DESTRUCTOR</span><br><span class="line">DESTRUCTOR</span><br><span class="line">DESTRUCTOR</span><br><span class="line">DESTRUCTOR</span><br></pre></td></tr></table></figure></p>
+<p>作为deleter不仅仅只有上述一种函数的形式，还包括Lambda函数和函数对象。比如：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Deleter</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">operator</span><span class="params">()</span> <span class="params">(Sample * x)</span> </span>&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"DELETER FUNCTION CALLED\n"</span>;</span><br><span class="line">		<span class="keyword">delete</span>[] x;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"> </span><br><span class="line"><span class="comment">// 函数对象作为 deleter</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Sample&gt; p3(<span class="keyword">new</span> Sample[<span class="number">12</span>], Deleter());</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Lambda函数作为 deleter</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Sample&gt; p4(<span class="keyword">new</span> Sample[<span class="number">12</span>], [](Sample * x)&#123;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"DELETER FUNCTION CALLED\n"</span>;</span><br><span class="line">		<span class="keyword">delete</span>[] x;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>还有一种情况是，在使用资源池的情况下，无需真的释放内存块，而只是将内存或者资源返回给资源池。比如下面这个仿真内存池：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Sample</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">&#125;;</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Memory Pool Dummy Kind of Implementation</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MemoryPool</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function">T * <span class="title">AquireMemory</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"AQUIRING MEMORY\n"</span>;</span><br><span class="line">		<span class="keyword">return</span> (<span class="keyword">new</span> T());</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">ReleaseMemory</span><span class="params">(T * ptr)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"RELEASE MEMORY\n"</span>;</span><br><span class="line">		<span class="keyword">delete</span> ptr;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;MemoryPool&lt;Sample&gt; &gt; memoryPoolPtr = <span class="built_in">std</span>::make_shared&lt;</span><br><span class="line">			MemoryPool&lt;Sample&gt; &gt;();</span><br><span class="line"> </span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Sample&gt; p3(memoryPoolPtr-&gt;AquireMemory(),</span><br><span class="line">			<span class="built_in">std</span>::bind(&amp;MemoryPool&lt;Sample&gt;::ReleaseMemory, memoryPoolPtr,</span><br><span class="line">					<span class="built_in">std</span>::placeholders::_1));</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/07/19/C++11 智能指针 – Part 2 shared_ptr 和自定义Deleter/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

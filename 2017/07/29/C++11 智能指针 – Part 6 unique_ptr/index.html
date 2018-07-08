@@ -1,0 +1,185 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>C++11 智能指针 – Part 6 unique_ptr</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="C++11 智能指针 – Part 6 unique_ptr"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        C++11 智能指针 – Part 6 unique_ptr
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-07-29T14:53:03.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-07-29
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/CPP/">CPP</a>·<a href="/tags/翻译/">翻译</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#什么是std-unique-ptr？"><span class="toc-number">1.</span> <span class="toc-text">什么是std::unique_ptr？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#unique指针的独享所有权"><span class="toc-number">2.</span> <span class="toc-text">unique指针的独享所有权</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#创建一个空的std-unique-ptr对象"><span class="toc-number">3.</span> <span class="toc-text">创建一个空的std::unique_ptr对象</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#检查std-unique-ptr对象是否为空"><span class="toc-number">4.</span> <span class="toc-text">检查std::unique_ptr对象是否为空</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#使用裸指针创建std-unique-ptr对象"><span class="toc-number">5.</span> <span class="toc-text">使用裸指针创建std::unique_ptr对象</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#重置std-unique-ptr对象"><span class="toc-number">6.</span> <span class="toc-text">重置std::unique_ptr对象</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#std-unique-ptr对象无法被拷贝"><span class="toc-number">7.</span> <span class="toc-text">std::unique_ptr对象无法被拷贝</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#转移std-unique-ptr对象所有权"><span class="toc-number">8.</span> <span class="toc-text">转移std::unique_ptr对象所有权</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#释放裸指针"><span class="toc-number">9.</span> <span class="toc-text">释放裸指针</span></a></li></ol>
+    <p><a href="http://thispointer.com/c11-unique_ptr-tutorial-and-examples/" target="_blank" rel="noopener">原文地址</a></p>
+<blockquote>
+<p>译注： 本翻译只遵循文章要表达的意图，而不会逐句翻译。</p>
+</blockquote>
+<blockquote>
+<p>这个是一系列关于智能指针的文章，谈及的东西都是比较入门的介绍。</p>
+</blockquote>
+<h1 id="什么是std-unique-ptr？"><a href="#什么是std-unique-ptr？" class="headerlink" title="什么是std::unique_ptr？"></a>什么是<code>std::unique_ptr</code>？</h1><p>智能指针出了<code>std::shared_ptr</code>，还包括另外一种<code>std::unique_ptr</code>。<code>std::unique_ptr</code>与<code>std::shared_ptr</code>功能一样，除了<code>std::unique_ptr</code>是独占资源所有权。意思是<code>std::unique_ptr</code>对象不能与其他的<code>std::unique_ptr</code>对象共享资源。<code>std::unique_ptr</code>也接受一个裸指针来创建对象。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Task</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="keyword">int</span> mId;</span><br><span class="line">	Task(<span class="keyword">int</span> id ) :mId(id)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Task::Constructor"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	~Task()</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Task::Destructor"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// Create a unique_ptr object through raw pointer</span></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Task&gt; taskPtr(<span class="keyword">new</span> Task(<span class="number">23</span>));</span><br><span class="line"> </span><br><span class="line">	<span class="comment">//Access the element through unique_ptr</span></span><br><span class="line">	<span class="keyword">int</span> id = taskPtr-&gt;mId;</span><br><span class="line"> </span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;id&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Task::Constructor</span><br><span class="line"><span class="number">23</span></span><br><span class="line">Task::Destructor</span><br></pre></td></tr></table></figure></p>
+<p><code>std::unique_ptr</code>对象<code>taskPtr</code>接收一个裸指针作为参数。当函数退出时，<code>taskPtr</code>对象会超出作用域，析构函数会被调用。在析构函数中，<code>taskPtr</code>会删除与之相关的裸指针。</p>
+<p>不管函数是正常退出还是异常退出，<code>taskPtr</code>的析构函数都会被调用。因此不会造成内存泄漏的情况。</p>
+<h1 id="unique指针的独享所有权"><a href="#unique指针的独享所有权" class="headerlink" title="unique指针的独享所有权"></a>unique指针的独享所有权</h1><p>独享所有权的意思是无法拷贝<code>std::unique_ptr</code>对象。只能<code>move</code>。每一个<code>std::unique_ptr</code>对象都只是裸指针的唯一拥有者，所有<code>std::unique_ptr</code>对象内部无需管理引用计数。</p>
+<h1 id="创建一个空的std-unique-ptr对象"><a href="#创建一个空的std-unique-ptr对象" class="headerlink" title="创建一个空的std::unique_ptr对象"></a>创建一个空的<code>std::unique_ptr</code>对象</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 空的`std::unique_ptr`对象</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;<span class="keyword">int</span>&gt; ptr1;</span><br></pre></td></tr></table></figure>
+<p>因为没有裸指针与之关联，所以<code>ptr1</code>是空的。</p>
+<h1 id="检查std-unique-ptr对象是否为空"><a href="#检查std-unique-ptr对象是否为空" class="headerlink" title="检查std::unique_ptr对象是否为空"></a>检查<code>std::unique_ptr</code>对象是否为空</h1><p>方法1：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(!ptr1)</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"ptr1 is empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure></p>
+<p>方法2：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(ptr1 == <span class="literal">nullptr</span>)</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"ptr1 is empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure></p>
+<h1 id="使用裸指针创建std-unique-ptr对象"><a href="#使用裸指针创建std-unique-ptr对象" class="headerlink" title="使用裸指针创建std::unique_ptr对象"></a>使用裸指针创建<code>std::unique_ptr</code>对象</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Task&gt; taskPtr(<span class="keyword">new</span> Task(<span class="number">23</span>));</span><br></pre></td></tr></table></figure>
+<p>不能通过赋值的方式来创建<code>std::unique_ptr</code>对象。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Task&gt; taskPtr2 = <span class="keyword">new</span> Task(); <span class="comment">// Compile Error</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="重置std-unique-ptr对象"><a href="#重置std-unique-ptr对象" class="headerlink" title="重置std::unique_ptr对象"></a>重置<code>std::unique_ptr</code>对象</h1><p>调用<code>reset()</code>函数会导致<code>std::unique_ptr</code>对象被重置，也就是与之关联的裸指针会被删除，同时<code>std::unique_ptr</code>对象会被置空。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">taskPtr.reset();</span><br></pre></td></tr></table></figure></p>
+<h1 id="std-unique-ptr对象无法被拷贝"><a href="#std-unique-ptr对象无法被拷贝" class="headerlink" title="std::unique_ptr对象无法被拷贝"></a><code>std::unique_ptr</code>对象无法被拷贝</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建 `unique_ptr` 对象</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Task&gt; taskPtr2(<span class="keyword">new</span> Task(<span class="number">55</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 编译错误</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Task&gt; taskPtr3 = taskPtr2;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 编译错误</span></span><br><span class="line">taskPtr = taskPtr2;</span><br></pre></td></tr></table></figure>
+<h1 id="转移std-unique-ptr对象所有权"><a href="#转移std-unique-ptr对象所有权" class="headerlink" title="转移std::unique_ptr对象所有权"></a>转移<code>std::unique_ptr</code>对象所有权</h1><p>无法拷贝<code>std::unique_ptr</code>对象，但是可以转移<code>std::unique_ptr</code>对象的所有权。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Task&gt; taskPtr2(<span class="keyword">new</span> Task(<span class="number">55</span>));</span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Task&gt; taskPtr4 = <span class="built_in">std</span>::move(taskPtr2);</span><br><span class="line"> </span><br><span class="line"><span class="keyword">if</span>(taskPtr2 == <span class="literal">nullptr</span>)</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"taskPtr2 is  empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// `taskPtr2`的所有权被转移到 `taskPtr4`对象</span></span><br><span class="line"><span class="keyword">if</span>(taskPtr4 != <span class="literal">nullptr</span>)</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"taskPtr4 is not empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;taskPtr4-&gt;mId&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure></p>
+<p><code>taskPtr2</code>对象在转移所有权后会被置为空。</p>
+<h1 id="释放裸指针"><a href="#释放裸指针" class="headerlink" title="释放裸指针"></a>释放裸指针</h1><p>通过调用<code>release()</code>函数，可以从<code>std::unique_ptr</code>对象中将裸指针释放出来，它返回一个裸指针。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Task&gt; taskPtr5(<span class="keyword">new</span> Task(<span class="number">55</span>));</span><br><span class="line"> </span><br><span class="line"><span class="keyword">if</span>(taskPtr5 != <span class="literal">nullptr</span>)</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"taskPtr5 is not empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"> </span><br><span class="line">Task * ptr = taskPtr5.release();</span><br><span class="line"> </span><br><span class="line"><span class="keyword">if</span>(taskPtr5 == <span class="literal">nullptr</span>)</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"taskPtr5 is empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure></p>
+<p>完整例子：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Task</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="keyword">int</span> mId;</span><br><span class="line">	Task(<span class="keyword">int</span> id ) :mId(id)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Task::Constructor"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	~Task()</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Task::Destructor"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// Empty unique_ptr object</span></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;<span class="keyword">int</span>&gt; ptr1;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Check if unique pointer object is empty</span></span><br><span class="line">	<span class="keyword">if</span>(!ptr1)</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"ptr1 is empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Check if unique pointer object is empty</span></span><br><span class="line">	<span class="keyword">if</span>(ptr1 == <span class="literal">nullptr</span>)</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"ptr1 is empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// can not create unique_ptr object by initializing through assignment</span></span><br><span class="line">	<span class="comment">// std::unique_ptr&lt;Task&gt; taskPtr2 = new Task(); // Compile Error</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// Create a unique_ptr object through raw pointer</span></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Task&gt; taskPtr(<span class="keyword">new</span> Task(<span class="number">23</span>));</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Check if taskPtr is empty or it has an associated raw pointer</span></span><br><span class="line">	<span class="keyword">if</span>(taskPtr != <span class="literal">nullptr</span>)</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"taskPtr is  not empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//Access the element through unique_ptr</span></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;taskPtr-&gt;mId&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Reset the taskPtr"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">	<span class="comment">// Reseting the unique_ptr will delete the associated</span></span><br><span class="line">	<span class="comment">// raw pointer and make unique_ptr object empty</span></span><br><span class="line">	taskPtr.reset();</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Check if taskPtr is empty or it has an associated raw pointer</span></span><br><span class="line">	<span class="keyword">if</span>(taskPtr == <span class="literal">nullptr</span>)</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"taskPtr is  empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="comment">// Create a unique_ptr object through raw pointer</span></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Task&gt; taskPtr2(<span class="keyword">new</span> Task(<span class="number">55</span>));</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span>(taskPtr2 != <span class="literal">nullptr</span>)</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"taskPtr2 is  not empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// unique_ptr object is Not copyable</span></span><br><span class="line">	<span class="comment">//taskPtr = taskPtr2; //compile error</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// unique_ptr object is Not copyable</span></span><br><span class="line">	<span class="comment">//std::unique_ptr&lt;Task&gt; taskPtr3 = taskPtr2;</span></span><br><span class="line"></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// Transfer the ownership</span></span><br><span class="line"></span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Task&gt; taskPtr4 = <span class="built_in">std</span>::move(taskPtr2);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span>(taskPtr2 == <span class="literal">nullptr</span>)</span><br><span class="line">			<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"taskPtr2 is  empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// ownership of taskPtr2 is transfered to taskPtr4</span></span><br><span class="line">		<span class="keyword">if</span>(taskPtr4 != <span class="literal">nullptr</span>)</span><br><span class="line">			<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"taskPtr4 is not empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;taskPtr4-&gt;mId&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">		<span class="comment">//taskPtr4 goes out of scope and deletes the assocaited raw pointer</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Create a unique_ptr object through raw pointer</span></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Task&gt; taskPtr5(<span class="keyword">new</span> Task(<span class="number">55</span>));</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span>(taskPtr5 != <span class="literal">nullptr</span>)</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"taskPtr5 is not empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Release the ownership of object from raw pointer</span></span><br><span class="line">	Task * ptr = taskPtr5.release();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span>(taskPtr5 == <span class="literal">nullptr</span>)</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"taskPtr5 is empty"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;ptr-&gt;mId&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">delete</span> ptr;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">ptr1 is empty</span><br><span class="line">ptr1 is empty</span><br><span class="line">Task::Constructor</span><br><span class="line">taskPtr is  <span class="keyword">not</span> empty</span><br><span class="line"><span class="number">23</span></span><br><span class="line">Reset the taskPtr</span><br><span class="line">Task::Destructor</span><br><span class="line">taskPtr is  empty</span><br><span class="line">Task::Constructor</span><br><span class="line">taskPtr2 is  <span class="keyword">not</span> empty</span><br><span class="line">taskPtr2 is  empty</span><br><span class="line">taskPtr4 is <span class="keyword">not</span> empty</span><br><span class="line"><span class="number">55</span></span><br><span class="line">Task::Destructor</span><br><span class="line">Task::Constructor</span><br><span class="line">taskPtr5 is <span class="keyword">not</span> empty</span><br><span class="line">taskPtr5 is empty</span><br><span class="line"><span class="number">55</span></span><br><span class="line">Task::Destructor</span><br></pre></td></tr></table></figure>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/07/29/C++11 智能指针 – Part 6 unique_ptr/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>

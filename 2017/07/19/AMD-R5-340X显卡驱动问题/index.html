@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="google-site-verification" content="" />
+  
+  <title>AMD R5 340X显卡驱动问题</title>
+  <meta name="author" content="Ping Qixing">
+   <meta name="description" content="Coding with fun.">
+  
+
+  <meta property="og:title" content="AMD R5 340X显卡驱动问题"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:site_name" content="Ping"/>
+ <meta property="og:image" content="undefined"/>
+  
+  <link href="/apple-touch-icon-precomposed.png" sizes="180x180" rel="apple-touch-icon-precomposed">
+  <link rel="alternate" href="/atom.xml" title="Ping" type="application/atom+xml">
+  <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/m.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+  <a id="top"></a>
+  <div id='wx_pic' style='display:none;'><img src='/wx_share.png'/></div>
+  <div id="main">
+    <div class="behind">
+      <div class="back">
+        <a href="/" class="black-color"><i class="fa fa-times" aria-hidden="true"></i></a>
+      </div>
+      <div class="description">
+        &nbsp;虚妄
+      </div>
+    </div>
+    <div class="container">
+      
+
+  <article class="standard post">
+    <div class="title">
+      
+  
+    <h1 class="page-title center">
+        AMD R5 340X显卡驱动问题
+    </h1>
+  
+
+
+    </div>
+    <div class="meta center">
+      
+<time datetime="2017-07-19T19:29:47.000Z">
+  <i class="fa fa-calendar"></i>&nbsp;
+  2017-07-19
+</time>
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/categories/笔记/">笔记</a>
+
+
+
+
+    
+    &nbsp;
+    <i class="fa fa-tag"></i>&nbsp;
+    <a href="/tags/硬件/">硬件</a>
+
+
+    </div>
+    <hr>
+    <div class="picture-container">
+      
+    </div>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#原因"><span class="toc-number">1.</span> <span class="toc-text">原因</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#解决方案"><span class="toc-number">2.</span> <span class="toc-text">解决方案</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#题外话"><span class="toc-number">3.</span> <span class="toc-text">题外话</span></a></li></ol>
+    <h1 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h1><p>AMD Radeon R5 340X显卡在更新了最新的Redeon驱动后，无法在windows中显示正确的分辨率，最高为<code>1600*1200</code>。显示器为Dell E22110H（老古董了，正常的分辨率应该为<code>1920*1080</code>）</p>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><p>在网上搜索了下，找到了个Dell的关于Optiplex 5040驱动<a href="http://zh.community.dell.com/support_forums/desktops/f/236/t/14252" target="_blank" rel="noopener">下载页面</a>。下载了对应的win10版本后安装，重启后还是无法显示正确的分辨率，可选的分辨率没有变。后来在CCC.exe（原来的催化剂！现在变成了Radeon的附加设置）中，在VGA显示器中属性节点页面的监视器特性中，有个可以设置最大分辨率的下拉框。而在Radeon的主程序中，什么都没显示，也无任何地方可以设置，除了中间那个最大的广告！（我还是喜欢催化剂，直观地显示了对显示器的控制，让用户能够清晰简单地操作设备）</p>
+<p>在这个下拉框中选择了<code>1920*1080</code>，刷新率为60Hz。在系统设置的显示里终于显示了<code>1920*1080</code>的选项。</p>
+<blockquote>
+<p>2017-7-23 更新</p>
+</blockquote>
+<blockquote>
+<p>在最新的Radeon的主页中，有个<code>显示器</code>选项中，有个自定义修改分辨率，也可通过这个手动来增加一个自定义的设置，设置中增加显示器的最佳分辨率。</p>
+</blockquote>
+<blockquote>
+<p>PS 这个设置之前也用过，但是没生效。最近一次自定义后，突然发现又生效了。可能是和显卡驱动的版本有关。这次是更新到最新了。</p>
+</blockquote>
+<h1 id="题外话"><a href="#题外话" class="headerlink" title="题外话"></a>题外话</h1><p>首先不吐槽这个显卡有多么低端。对于AMD对于低端显卡的支持以及配置的易用性真是不敢恭维。在可以自主选择的情况下，对于AMD的显卡基本不在选择列中。</p>
+<hr>
+<p>在处理显卡的问题过程中，还将原来的那台OptiPlex 980MT的显卡拆下来装到5040上，事后当然又拆回去了。在这个过程当中，发现Dell主机的模块化做的是越来越好了。拆卸5040基本都不用工具，前提是要知道方法。而980MT却还需要借助工具才能将部件拆下来。5040有一个需要注意的是内存电压是1.35v的。</p>
+
+
+  </article>
+  </script>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+  </script>
+  <div class="busuanzi center">
+    页阅读量:&nbsp;<span id="busuanzi_value_page_pv"></span>&nbsp;・&nbsp;
+    站访问量:&nbsp;<span id="busuanzi_value_site_pv"></span>&nbsp;・&nbsp;
+    站访客数:&nbsp;<span id="busuanzi_value_site_uv"></span>
+  </div>
+
+
+<div id="disqus_thread"></div>
+<script>
+
+var disqus_config = function () {
+this.page.url = 'http://codingwith.me/2017/07/19/AMD-R5-340X显卡驱动问题/index.html';
+this.page.identifier = undefined;
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//navono.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+
+
+    </div>
+  </div>
+  <footer class="page-footer"><div class="clearfix">
+</div>
+<div class="right-foot container">
+    <div class="firstrow">
+        <a href="#top" target="_self">
+        <i class="fa fa-arrow-right"></i>
+        </a>
+        Ping © 2017-2017
+    </div>
+    <div class="secondrow">
+        <a href="https://github.com/gaoryrt/hexo-theme-pln">
+        Theme Pln
+        </a>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+</footer>
+  <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+
+// disqus scripts
+
+
+// dropdown scripts
+$(".dropdown").click(function(event) {
+  var current = $(this);
+  event.stopPropagation();
+  $(current).children(".dropdown-content")[($(current).children(".dropdown-content").hasClass("open"))?'removeClass':'addClass']("open")
+});
+$(document).click(function(){
+    $(".dropdown-content").removeClass("open");
+})
+
+var path = "/search.xml";
+searchFunc(path, 'local-search-input', 'local-search-result');
+
+</script>
+
+</body>
+</html>
